@@ -1,792 +1,540 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noise Normulator Prototype</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Noise Normulator - Harmonize Your Hood</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Light grayish-blue background */
+            background-color: #1a202c; /* Dark background for a modern feel */
+            color: #e2e8f0; /* Light text for contrast */
         }
-        .header-gradient {
-            background: linear-gradient(to right, #3a506b, #2c3e50); /* Dark blue gradient */
-        }
-        .btn-primary {
-            background-color: #4A7C59; /* User green from diagram */
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #3e6b4f;
-        }
-        .btn-secondary {
-            background-color: #D4A373; /* Processing orange/brown from diagram */
-            color: #333333;
-        }
-        .btn-secondary:hover {
-            background-color: #c29363;
-        }
-        .btn-tertiary {
-            background-color: #e2e8f0; /* gray-200 */
-            color: #4a5568; /* gray-700 */
-        }
-        .btn-tertiary:hover {
-            background-color: #cbd5e1; /* gray-300 */
-        }
-        .card {
-            background-color: white;
-            border-radius: 0.75rem; /* 12px */
+        nav {
+            background-color: #2d3748; /* Slightly lighter dark for nav */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .tab-active {
-            border-bottom-color: #4A7C59; /* User green */
-            color: #4A7C59;
-            font-weight: 600;
+        nav a {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
         }
-        .tab-inactive {
-            border-bottom-color: transparent;
-            color: #6b7280; /* gray-500 */
+        nav a:hover, nav a.active-nav {
+            color: #63b3ed; /* Light blue for hover/active */
+            border-bottom-color: #63b3ed;
         }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            color: #9f7aea; /* Purple for gamified titles */
+            text-shadow: 2px 2px #000;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+        .card {
+            background-color: #2d3748; /* Card background */
+            border: 1px solid #4a5568; /* Card border */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
+        .accordion-button {
+            background-color: #4a5568; /* Accordion button background */
+            transition: background-color 0.3s ease;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        /* SVG Map placeholder styles */
-        .svg-map-container {
-            width: 100%;
-            /* max-width: 700px; */ /* Control max size of map */
-            margin: auto;
-            height: 450px; /* Adjust as needed */
-            background-color: #e9f0f5; /* Lighter blue for map background */
-            border: 1px solid #cdd7e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden; /* Ensure hotspots stay within bounds */
-            border-radius: 0.5rem;
-        }
-        .svg-map-container svg {
-            width: 100%;
-            height: 100%;
-        }
-        .hotspot {
-            position: absolute;
-            width: 28px; /* Slightly smaller */
-            height: 28px;
-            background-color: rgba(220, 38, 38, 0.8); /* Tailwind red-600 with opacity */
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            box-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
-            transition: transform 0.2s ease-in-out, background-color 0.2s;
-        }
-        .hotspot:hover {
-            transform: scale(1.25);
-            background-color: rgba(185, 28, 28, 0.9); /* Darker red on hover */
-        }
-        .hotspot .tooltip {
-            visibility: hidden;
-            width: 220px; /* Slightly wider tooltip */
-            background-color: #2d3748; /* gray-800 */
-            color: #fff;
-            text-align: left;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 10;
-            bottom: 130%;
-            left: 50%;
-            margin-left: -110px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.8rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-         .hotspot .tooltip::after { /* Tooltip arrow */
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #2d3748 transparent transparent transparent;
-        }
-        .hotspot:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-        /* Modal styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 25px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        /* Accordion styles for resident form */
-        .accordion-header {
-            cursor: pointer;
-            padding: 0.75rem 1rem;
-            background-color: #f9fafb; /* gray-50 */
-            border: 1px solid #e5e7eb; /* gray-200 */
-            border-radius: 0.375rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.2s;
-        }
-        .accordion-header:hover {
-            background-color: #f3f4f6; /* gray-100 */
+        .accordion-button:hover {
+            background-color: #63b3ed; /* Lighter blue on hover */
         }
         .accordion-content {
-            display: none;
-            padding: 1rem;
-            border: 1px solid #e5e7eb; /* gray-200 */
-            border-top: none;
-            border-radius: 0 0 0.375rem 0.375rem;
+            background-color: #2d3748; /* Slightly lighter than card for depth */
+            border-top: 1px solid #4a5568;
         }
-        .accordion-content.open {
-            display: block;
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #63b3ed;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #1a202c;
         }
-        .accordion-icon {
-            transition: transform 0.3s ease;
+        .slider-thumb::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #63b3ed;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #1a202c;
         }
-        .accordion-icon.rotate {
-            transform: rotate(180deg);
+        .checkbox-group label, .radio-group label {
+            background-color: #4a5568;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid #718096;
+        }
+        .checkbox-group input:checked + span, .radio-group input:checked + span {
+            background-color: #63b3ed;
+            color: #1a202c;
+            font-weight: 600;
+        }
+         .checkbox-group label:hover, .radio-group label:hover {
+            background-color: #718096;
+            transform: translateY(-2px);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .municipal-tabs button {
-                font-size: 0.875rem;
-            }
-            .svg-map-container {
-                height: 350px;
-            }
-            .hotspot {
-                width: 22px;
-                height: 22px;
-                font-size: 9px;
-            }
-            .modal-content {
-                width: 90%;
-                margin: 15% auto; /* Adjusted margin for mobile */
-            }
+        input[type="text"], input[type="time"], textarea, select {
+            background-color: #1a202c;
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        input[type="text"]:focus, input[type="time"]:focus, textarea:focus, select:focus {
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5);
+            outline: none;
+        }
+        button.primary-button {
+            background-color: #63b3ed; /* Primary action blue */
+            color: #1a202c;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        button.primary-button:hover {
+            background-color: #90cdf4; /* Lighter blue on hover */
+            transform: translateY(-2px);
+        }
+        button.secondary-button {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+        button.secondary-button:hover {
+            background-color: #718096;
+        }
+
+        /* Harmony/Conflict Colors */
+        .harmony-high { color: #48bb78; } /* Green */
+        .harmony-mid { color: #f6e05e; } /* Yellow */
+        .harmony-low { color: #f56565; } /* Red */
+
+        .importance-high { border-left: 4px solid #f56565; }
+        .importance-mid { border-left: 4px solid #f6e05e; }
+        .importance-low { border-left: 4px solid #48bb78; }
+
+        /* Meter styling */
+        .harmony-meter-container {
+            width: 100%;
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            height: 30px;
+            border: 2px solid #718096;
+        }
+        .harmony-meter-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f56565 0%, #f6e05e 50%, #48bb78 100%);
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a202c;
+        }
+        .sound-source-icon {
+            font-size: 1.5rem; /* Adjust as needed */
+            margin-right: 0.5rem;
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="min-h-screen">
+    <nav class="p-4 flex justify-around items-center sticky top-0 z-50">
+        <a href="#" onclick="showSection('profile', this)" class="text-lg font-semibold p-2 active-nav">Your Preferences</a>
+        <a href="#" onclick="showSection('harmonize', this)" class="text-lg font-semibold p-2">Harmonize</a>
+        <a href="#" onclick="showSection('complaints', this)" class="text-lg font-semibold p-2">Report Concern</a>
+    </nav>
 
-    <header class="header-gradient text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto flex flex-wrap justify-between items-center">
-            <h1 class="text-2xl md:text-3xl font-bold">
-                <i class="fas fa-bullhorn mr-2"></i>Noise Normulator
-            </h1>
-            <div class="mt-2 md:mt-0">
-                <span class="mr-3 text-sm">View as:</span>
-                <select id="viewSwitcher" class="bg-white text-gray-800 p-2 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-D4A373">
-                    <option value="resident" selected>Resident</option>
-                    <option value="municipal">Municipal Authority</option>
-                </select>
-            </div>
-        </div>
-    </header>
+    <main class="p-4 md:p-8">
+        <section id="profile" class="active space-y-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Your Sound Profile</h2>
 
-    <main class="container mx-auto p-4 md:p-6">
-
-        <div id="residentView" class="space-y-6">
-            <div class="card p-6">
-                <h2 class="text-2xl font-semibold mb-2 text-gray-700">Report a Noise Issue</h2>
-                <p class="text-sm text-gray-600 mb-6">Help us understand the soundscape of your neighborhood. Your input is valuable.</p>
-                <form id="noiseReportForm" class="space-y-6">
-                    <fieldset class="space-y-4 p-4 border border-gray-300 rounded-md">
-                        <legend class="text-lg font-medium text-gray-800 px-2">Essential Details</legend>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="noiseLocation" class="block text-sm font-medium text-gray-700 mb-1">Location of Noise Source <span class="text-red-500">*</span></label>
-                                <input type="text" id="noiseLocation" name="noiseLocation" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 123 Main St or 'Park across the street'">
-                            </div>
-                            <div>
-                                <label for="noiseType" class="block text-sm font-medium text-gray-700 mb-1">Type of Noise <span class="text-red-500">*</span></label>
-                                <select id="noiseType" name="noiseType" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">Select a type...</option>
-                                    <option value="construction">Construction</option>
-                                    <option value="loud_music_party">Loud Music / Party</option>
-                                    <option value="animals">Animals (e.g., barking dogs)</option>
-                                    <option value="traffic">Traffic</option>
-                                    <option value="industrial">Industrial / Commercial</option>
-                                    <option value="people">Loud People / Shouting</option>
-                                    <option value="alarms">Alarms / Sirens</option>
-                                    <option value="other">Other (please specify)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="otherNoiseTypeContainer" class="hidden">
-                            <label for="otherNoiseType" class="block text-sm font-medium text-gray-700 mb-1">Specify Other Noise Type <span class="text-red-500">*</span></label>
-                            <input type="text" id="otherNoiseType" name="otherNoiseType" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-                        <div class="grid md:grid-cols-3 gap-6">
-                            <div>
-                                <label for="noiseDate" class="block text-sm font-medium text-gray-700 mb-1">Date of Noise <span class="text-red-500">*</span></label>
-                                <input type="date" id="noiseDate" name="noiseDate" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label for="noiseTime" class="block text-sm font-medium text-gray-700 mb-1">Time of Noise <span class="text-red-500">*</span></label>
-                                <input type="time" id="noiseTime" name="noiseTime" required class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label for="noiseDuration" class="block text-sm font-medium text-gray-700 mb-1">Approx. Duration</label>
-                                <input type="text" id="noiseDuration" name="noiseDuration" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 30 minutes, 2 hours">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="noiseIntensity" class="block text-sm font-medium text-gray-700 mb-1">Perceived Loudness/Intensity (1=Low, 10=Very High)</label>
-                            <input type="range" id="noiseIntensity" name="noiseIntensity" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-4A7C59">
-                            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                <span>Low</span><span>Medium</span><span>Very High</span>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <div class="space-y-3">
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <span class="font-medium text-gray-700">Describe Impact (Optional)</span>
-                                <i class="fas fa-chevron-down accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content space-y-3">
-                                <div class="relative flex items-start">
-                                    <div class="flex items-center h-5"><input id="impactSleep" name="impactSleep" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                    <div class="ml-3 text-sm"><label for="impactSleep" class="font-medium text-gray-700">Disturbed Sleep</label></div>
-                                </div>
-                                <div class="relative flex items-start">
-                                    <div class="flex items-center h-5"><input id="impactConcentration" name="impactConcentration" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                    <div class="ml-3 text-sm"><label for="impactConcentration" class="font-medium text-gray-700">Affected Work/Concentration</label></div>
-                                </div>
-                                <div class="relative flex items-start">
-                                    <div class="flex items-center h-5"><input id="impactStress" name="impactStress" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                    <div class="ml-3 text-sm"><label for="impactStress" class="font-medium text-gray-700">Increased Stress/Anxiety</label></div>
-                                </div>
-                                <div>
-                                    <label for="impactDescription" class="block text-sm font-medium text-gray-700 mb-1">Further details on impact</label>
-                                    <textarea id="impactDescription" name="impactDescription" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Describe how the noise affected you..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <span class="font-medium text-gray-700">Personal Sensitivities & Needs (Optional)</span>
-                                <i class="fas fa-chevron-down accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content space-y-3">
-                                <div>
-                                    <label for="generalSensitivity" class="block text-sm font-medium text-gray-700 mb-1">General Sensitivity to Noise</label>
-                                    <select id="generalSensitivity" name="generalSensitivity" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                        <option value="not_specified">Prefer not to say</option>
-                                        <option value="low">Low</option>
-                                        <option value="medium" selected>Medium</option>
-                                        <option value="high">High</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="medicalConditions" class="block text-sm font-medium text-gray-700 mb-1">Diagnosed conditions increasing noise sensitivity? (e.g., Autism, Hyperacusis, PTSD, Migraines, Tinnitus)</label>
-                                    <textarea id="medicalConditions" name="medicalConditions" rows="2" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="If yes, please specify (confidential)"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <span class="font-medium text-gray-700">Noise Norms & Resolution Attempts (Optional)</span>
-                                <i class="fas fa-chevron-down accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content space-y-3">
-                                <div>
-                                    <label for="acceptableNoise" class="block text-sm font-medium text-gray-700 mb-1">What do you consider acceptable noise levels/types for your neighborhood (day/night)?</label>
-                                    <textarea id="acceptableNoise" name="acceptableNoise" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 'Quiet after 10 PM on weekdays', 'Occasional parties are fine'"></textarea>
-                                </div>
-                                <div class="relative flex items-start">
-                                    <div class="flex items-center h-5"><input id="informalResolution" name="informalResolution" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                    <div class="ml-3 text-sm"><label for="informalResolution" class="font-medium text-gray-700">Have you attempted to resolve this issue informally with the source (if known and safe)?</label></div>
-                                </div>
-                                <div id="informalResolutionOutcomeContainer" class="hidden">
-                                    <label for="informalResolutionOutcome" class="block text-sm font-medium text-gray-700 mb-1">Outcome of informal resolution attempt</label>
-                                    <textarea id="informalResolutionOutcome" name="informalResolutionOutcome" rows="2" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 'Spoke to neighbor, no change', 'Unable to identify source'"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <span class="font-medium text-gray-700">Upload Evidence (Optional)</span>
-                                <i class="fas fa-chevron-down accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content">
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                    <div class="space-y-1 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                        <div class="flex text-sm text-gray-600">
-                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"><span>Upload a file</span><input id="file-upload" name="file-upload" type="file" class="sr-only"></label>
-                                            <p class="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB; MP3, WAV, MP4 up to 50MB</p>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="card rounded-lg overflow-hidden">
+                <button onclick="toggleAccordion('accordion-sensitivity')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
+                    <span>🔊 Your Sound Sensitivity</span>
+                    <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
+                </button>
+                <div id="accordion-sensitivity" class="accordion-content p-6 space-y-6 hidden">
+                    <div>
+                        <label for="noise-sensitivity" class="block text-sm font-medium text-gray-300 mb-1">How would you describe your general sensitivity to noise?</label>
+                        <input type="range" id="noise-sensitivity" min="1" max="5" value="3" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Very Low</span><span>Low</span><span>Medium</span><span>High</span><span>Very High</span>
                         </div>
                     </div>
-
-                    <div class="pt-5">
-                        <button type="submit" class="w-full btn-primary font-semibold py-3 px-4 rounded-md shadow-md hover:shadow-lg transition duration-150 ease-in-out">
-                            Submit Noise Report
-                        </button>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">What time of day are you most sensitive to noise?</label>
+                        <div class="checkbox-group grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="morning"> <span class="block p-2 rounded-md">Morning</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="afternoon"> <span class="block p-2 rounded-md">Afternoon</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="evening"> <span class="block p-2 rounded-md">Evening</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="night"> <span class="block p-2 rounded-md">Night</span></label>
+                        </div>
                     </div>
-                </form>
-            </div>
-
-            <div class="card p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">My Submitted Reports</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="myReportsTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No reports submitted yet.</td></tr>
-                        </tbody>
-                    </table>
+                    <div>
+                        <label for="critical-quiet-times" class="block text-sm font-medium text-gray-300 mb-1">What specific times are crucial for your quiet? (e.g., work calls 2-4pm, baby's nap 1-3pm)</label>
+                        <input type="text" id="critical-quiet-times" placeholder="e.g., Mon 10am-12pm for meetings" class="w-full p-2 rounded-md">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Which days are most critical for quiet?</label>
+                        <div class="checkbox-group grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekdays"> <span class="block p-2 rounded-md">Weekdays</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekends"> <span class="block p-2 rounded-md">Weekends</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="specific"> <span class="block p-2 rounded-md">Specific Days (add below)</span></label>
+                        </div>
+                        <input type="text" id="specific-critical-days" placeholder="e.g., Sundays" class="w-full p-2 rounded-md mt-2 hidden">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">What types of noise from neighbors bother you most?</label>
+                        <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Loud Music/TV</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Talking/Shouting</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Footsteps/Impact</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Construction/DIY</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Pets (barking, etc.)</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Children Playing</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Parties/Gatherings</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Outdoor Equipment</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Other</span></label>
+                        </div>
+                        <textarea id="other-bothering-noise" placeholder="Specify other noises..." class="w-full p-2 rounded-md mt-2 hidden" rows="2"></textarea>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="municipalView" class="hidden space-y-6">
-            <div class="card p-0">
-                <div class="border-b border-gray-200 municipal-tabs">
-                    <nav class="-mb-px flex space-x-1 sm:space-x-4 px-4" aria-label="Tabs">
-                        <button id="tabMap" class="whitespace-nowrap py-4 px-1 sm:px-2 border-b-2 font-medium text-sm tab-active"><i class="fas fa-map-marked-alt mr-1 sm:mr-2"></i>Geo-Cultural Distance Map (Schweinfurt)</button>
-                        <button id="tabComplaints" class="whitespace-nowrap py-4 px-1 sm:px-2 border-b-2 font-medium text-sm tab-inactive"><i class="fas fa-list-check mr-1 sm:mr-2"></i>Complaint Tracker</button>
-                    </nav>
-                </div>
-
-                <div id="mapView" class="p-6">
-                    <h2 class="text-xl font-semibold mb-1 text-gray-700">Neighborhood Geo-Cultural Distance: Schweinfurt Area</h2>
-                    <p class="text-sm text-gray-600 mb-4">Illustrative map of Schweinfurt, highlighting areas with potential noise conflicts. Hotspots indicate higher 'geo-cultural distance'.</p>
-                    <div class="svg-map-container rounded-md">
-                        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="300" height="200" fill="#d1e0ec"/> <path d="M 0 130 Q 50 120, 100 135 T 200 140 T 300 125 L 300 165 Q 200 175, 100 160 T 0 160 Z" fill="#aadaff"/>
-                            <text x="150" y="150" font-size="8" fill="#333" text-anchor="middle">Main River (Conceptual)</text>
-
-                            <rect x="20" y="20" width="100" height="70" fill="#b8c5d0" stroke="#9fb0bf" stroke-width="0.5"/>
-                            <text x="70" y="55" font-size="7" fill="#4A5568" text-anchor="middle">Altstadt Area</text>
-                            <rect x="130" y="30" width="80" height="50" fill="#c5d0db" stroke="#9fb0bf" stroke-width="0.5"/>
-                            <text x="170" y="55" font-size="7" fill="#4A5568" text-anchor="middle">Newer Residential</text>
-                            <rect x="40" y="100" width="70" height="40" fill="#cdd5df" stroke="#9fb0bf" stroke-width="0.5"/>
-                             <text x="75" y="120" font-size="7" fill="#4A5568" text-anchor="middle">Mixed Zone</text>
-                            <rect x="150" y="90" width="120" height="60" fill="#b0bcc8" stroke="#9fb0bf" stroke-width="0.5"/>
-                            <text x="210" y="120" font-size="7" fill="#4A5568" text-anchor="middle">Industrial Outskirts</text>
-
-                            <ellipse cx="250" cy="50" rx="30" ry="20" fill="#90EE90" />
-                            <text x="250" y="52" font-size="6" fill="#333" text-anchor="middle">Park</text>
-                        </svg>
-                        <div class="hotspot" style="top: 25%; left: 20%;" data-tooltip="Schweinfurt Altstadt: Frequent reports of late-night noise from bars and public gatherings, clashing with residents desiring quiet, especially older population. High sensitivity reports.">
-                            <i class="fas fa-beer"></i>
-                            <span class="tooltip"><b>Altstadt Area (Old Town)</b><br>High geo-cultural distance. Issues: Late-night noise from bars/restaurants vs. residential quiet hours. Sensitivity Score: 8/10. Complaints: 7 recent.</span>
+            <div class="card rounded-lg overflow-hidden">
+                <button onclick="toggleAccordion('accordion-sound-output')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
+                    <span>🏡 Your Household's Sound Output</span>
+                    <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
+                </button>
+                <div id="accordion-sound-output" class="accordion-content p-6 space-y-6 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Primary sources of noise from your household?</label>
+                        <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="tv-music"><span class="block p-2 rounded-md">TV/Music</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="instruments"><span class="block p-2 rounded-md">Instruments</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="children"><span class="block p-2 rounded-md">Children Playing</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="pets"><span class="block p-2 rounded-md">Pets</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="hobbies"><span class="block p-2 rounded-md">Hobbies (DIY, etc.)</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="gatherings"><span class="block p-2 rounded-md">Gatherings</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="appliances"><span class="block p-2 rounded-md">Appliances</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="exercise"><span class="block p-2 rounded-md">Exercise Equip.</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="other"><span class="block p-2 rounded-md">Other</span></label>
                         </div>
-                        <div class="hotspot" style="top: 60%; left: 75%; background-color: rgba(255, 165, 0, 0.8); box-shadow: 0 0 10px rgba(255, 165, 0, 0.6);" data-tooltip="Industrial Outskirts (Nähe Hafen): Daytime industrial noise (machinery, trucks) affecting nearby new residential developments. Some work-from-home impact.">
-                            <i class="fas fa-industry"></i>
-                             <span class="tooltip"><b>Industrial Outskirts</b><br>Moderate distance. Conflict: Factory operations vs. newer housing. Sensitivity Score: 6/10. Complaints: 4 recent.</span>
-                        </div>
-                        <div class="hotspot" style="top: 55%; left: 22%; background-color: rgba(245, 225, 50, 0.85); color: #333; box-shadow: 0 0 10px rgba(235, 215, 40, 0.6);" data-tooltip="Mixed Zone (Südlich der Altstadt): Recurring complaints about dog barking, particularly from apartment complexes with shared green spaces. Case law (Schweinfurt dog barking) often cited.">
-                           <i class="fas fa-dog"></i>
-                            <span class="tooltip"><b>Mixed Residential Zone</b><br>Moderate-High distance. Primary Issue: Persistent dog barking. Sensitivity Score: 7/10. Complaints: 5 (related to dogs).</span>
-                        </div>
-                         <div class="hotspot" style="top: 20%; left: 80%; background-color: rgba(135, 206, 235, 0.9); color: #1A202C; box-shadow: 0 0 10px rgba(135, 206, 235, 0.7);" data-tooltip="Park Area (Stadtpark): Seasonal issues with loud youth gatherings in evenings, music, and litter. Affects nearby residents seeking peaceful enjoyment of the park.">
-                            <i class="fas fa-users"></i>
-                            <span class="tooltip"><b>Stadtpark Vicinity</b><br>Seasonal distance. Issue: Loud evening gatherings in park. Sensitivity Score: 5/10. Complaints: 3 (seasonal).</span>
-                        </div>
+                        <div id="household-noise-details" class="mt-4 space-y-4">
+                            </div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2 text-center">Note: Map and hotspot data are illustrative, inspired by Schweinfurt context.</p>
-                </div>
-
-                <div id="complaintsView" class="hidden p-6">
-                     <h2 class="text-xl font-semibold mb-4 text-gray-700">Formal Noise Complaint Tracker</h2>
-                     <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <input type="text" id="complaintSearch" placeholder="Search by ID, Location, Type..." class="w-full sm:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                        <div>
-                            <label for="complaintStatusFilter" class="mr-2 text-sm font-medium text-gray-700">Filter by Status:</label>
-                            <select id="complaintStatusFilter" class="p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="all">All</option>
-                                <option value="New">New</option>
-                                <option value="Under Review">Under Review</option>
-                                <option value="Mediation Suggested">Mediation Suggested</option>
-                                <option value="Resolved">Resolved</option>
-                                <option value="Escalated">Escalated</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ID</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Date Filed</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location (Schweinfurt Area)</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Noise Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Last Update</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="complaintsTableBody" class="bg-white divide-y divide-gray-200">
-                                <tr data-status="New">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">SW-001</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-05-10</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Markt Platz Area</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Loud Music (Bar)</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">New</span></td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-05-10</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 view-details-btn">Details</button></td>
-                                </tr>
-                                <tr data-status="Under Review">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">SW-002</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-05-08</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Rosenweg, Gartenstadt</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Dog Barking (Persistent)</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Under Review</span></td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-05-09</td>
-                                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 view-details-btn">Details</button></td>
-                                </tr>
-                                <tr data-status="Mediation Suggested">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">SW-003</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-04-25</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Hafenstraße Area</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">Industrial (Night Shift)</td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Mediation Suggested</span></td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2024-05-05</td>
-                                     <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"><button class="text-indigo-600 hover:text-indigo-900 view-details-btn">Details</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="noComplaintsMessage" class="hidden text-center py-4 text-gray-500">No complaints match the current filter.</div>
                 </div>
             </div>
-        </div>
+
+            <div class="card rounded-lg overflow-hidden">
+                <button onclick="toggleAccordion('accordion-management')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
+                    <span>🤝 Sound Management & Flexibility</span>
+                    <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
+                </button>
+                <div id="accordion-management" class="accordion-content p-6 space-y-6 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Steps you currently take to minimize your noise?</label>
+                        <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Soundproofing</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Scheduling</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Headphones</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Pet Training</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Rugs/Curtains</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Other</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="willingness-adjust-timing" class="block text-sm font-medium text-gray-300 mb-1">How willing are you to adjust timing of noisy activities?</label>
+                        <input type="range" id="willingness-adjust-timing" min="1" max="5" value="3" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Not Willing</span><span></span><span>Neutral</span><span></span><span>Very Willing</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="willingness-sound-dampening" class="block text-sm font-medium text-gray-300 mb-1">How willing to invest in sound-dampening (e.g., rugs)?</label>
+                        <input type="range" id="willingness-sound-dampening" min="1" max="5" value="2" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                         <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Not Willing</span><span></span><span>Neutral</span><span></span><span>Very Willing</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="unavoidable-noises" class="block text-sm font-medium text-gray-300 mb-1">Are there noises you make that you believe are unavoidable? Please explain.</label>
+                        <textarea id="unavoidable-noises" rows="3" placeholder="e.g., Baby crying, essential medical equipment" class="w-full p-2 rounded-md"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Preferred way to be approached about a noise concern?</label>
+                        <div class="radio-group grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="direct"><span class="block p-2 rounded-md">Direct Chat</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="anonymous"><span class="block p-2 rounded-md">Anonymous Note</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="hoa"><span class="block p-2 rounded-md">Via Mgmt/HOA</span></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg">Save My Sound Profile</button>
+        </section>
+
+        <section id="harmonize" class="hidden space-y-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Harmonize With Your Neighbors</h2>
+
+            <div class="card rounded-lg p-6">
+                <h3 class="text-2xl font-semibold mb-2 text-yellow-400">Your Community Harmony Score</h3>
+                <div class="harmony-meter-container mb-4">
+                    <div id="harmony-meter-bar" class="harmony-meter-bar" style="width: 74%;">74%</div>
+                </div>
+                <p class="text-sm text-gray-400 mb-4">This score reflects how well your current sound habits align with community preferences. Increase it by signaling your willingness to adapt!</p>
+            </div>
+
+            <div class="card rounded-lg p-6 space-y-6">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">Common Neighborhood Soundscape Goals:</h3>
+                
+                <div class="border border-gray-700 rounded-lg p-4 importance-high">
+                    <div class="flex items-center mb-3">
+                        <span class="sound-source-icon text-red-500">🎵</span>
+                        <h4 class="text-lg font-semibold">Late Night Music (after 10 PM)</h4>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Many neighbors have expressed a need for quiet after 10 PM, especially on weekdays, to ensure restful sleep.</p>
+                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                        <button onclick="updateHarmony(10, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I can adjust (e.g., use headphones, lower volume)</button>
+                        <button onclick="updateHarmony(3, this); openExplanation('music_late')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                    </div>
+                    <textarea id="explanation_music_late" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation or partial adjustment (shared anonymously)"></textarea>
+                </div>
+
+                <div class="border border-gray-700 rounded-lg p-4 importance-mid">
+                     <div class="flex items-center mb-3">
+                        <span class="sound-source-icon text-yellow-500">🐾</span>
+                        <h4 class="text-lg font-semibold">Daytime Pet Noise (e.g., barking 1-3 PM)</h4>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Some residents work from home or have young children napping between 1 PM - 3 PM and are sensitive to prolonged pet noise.</p>
+                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                        <button onclick="updateHarmony(8, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I'll try bark-reduction / manage pet</button>
+                        <button onclick="updateHarmony(2, this); openExplanation('pet_daytime')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                    </div>
+                     <textarea id="explanation_pet_daytime" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation (e.g., new puppy training) (shared anonymously)"></textarea>
+                </div>
+
+                 <div class="border border-gray-700 rounded-lg p-4 importance-mid">
+                     <div class="flex items-center mb-3">
+                        <span class="sound-source-icon text-orange-500">🛠️</span>
+                        <h4 class="text-lg font-semibold">Early Morning DIY (before 9 AM weekends)</h4>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-3">Weekend mornings are valued for rest. Loud DIY or power tool usage before 9 AM can be disruptive.</p>
+                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                        <button onclick="updateHarmony(7, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I can schedule DIY later</button>
+                        <button onclick="updateHarmony(1, this); openExplanation('diy_morning')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                    </div>
+                     <textarea id="explanation_diy_morning" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation (e.g., urgent repair) (shared anonymously)"></textarea>
+                </div>
+                <p class="text-xs text-center text-gray-500 mt-6">Your anonymous explanations help neighbors understand different perspectives and foster empathy.</p>
+            </div>
+        </section>
+
+        <section id="complaints" class="hidden space-y-8">
+            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Report a Sound Concern</h2>
+            <div class="card rounded-lg p-6 space-y-6 max-w-2xl mx-auto">
+                <div>
+                    <label for="complaint-description" class="block text-sm font-medium text-gray-300 mb-1">Describe the concern (What, When, How often?)</label>
+                    <textarea id="complaint-description" rows="4" placeholder="e.g., Loud parties every Friday night until 3 AM from Apt 3B, with bass shaking walls." class="w-full p-2 rounded-md"></textarea>
+                </div>
+                <div>
+                    <label for="complaint-source" class="block text-sm font-medium text-gray-300 mb-1">Source of the noise (Optional, if known)</label>
+                    <input type="text" id="complaint-source" placeholder="e.g., Apt 3B, House #12 (blue fence)" class="w-full p-2 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Have you tried to communicate with them directly?</label>
+                    <div class="radio-group grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="yes"><span class="block p-2 rounded-md">Yes</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="no"><span class="block p-2 rounded-md">No</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="afraid"><span class="block p-2 rounded-md">I'm hesitant</span></label>
+                    </div>
+                </div>
+                 <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">What kind of support or outcome are you seeking?</label>
+                    <div class="checkbox-group grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Anonymous Log</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Information for Mgmt</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Mediation Tips</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Formal Complaint Route</span></label>
+                    </div>
+                </div>
+                <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg">Submit Concern Anonymously</button>
+                 <p class="text-xs text-center text-gray-500 mt-4">Note: This platform facilitates communication and understanding. For urgent threats or illegal activities, please contact local authorities.</p>
+            </div>
+        </section>
     </main>
 
-    <div id="infoModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3 id="modalTitle" class="text-xl font-semibold mb-3">Modal Title</h3>
-            <div id="modalMessage" class="text-sm text-gray-600 max-h-96 overflow-y-auto">Modal message goes here.</div>
-            <div class="mt-5 text-right">
-                <button id="modalCloseButton" class="btn-secondary py-2 px-4 rounded-md">Close</button>
-            </div>
+    <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="modalMessageText" class="text-lg text-gray-200 mb-4"></p>
+            <button onclick="closeModal()" class="primary-button px-6 py-2 rounded-md">OK</button>
         </div>
     </div>
 
-    <footer class="text-center p-4 mt-8 text-sm text-gray-500 border-t border-gray-200">
-        The Noise Normulator Project &copy; <span id="currentYear"></span> - Citizen Science for Better Soundscapes
-    </footer>
 
     <script>
-        // DOM Elements
-        const viewSwitcher = document.getElementById('viewSwitcher');
-        const residentView = document.getElementById('residentView');
-        const municipalView = document.getElementById('municipalView');
-        const noiseReportForm = document.getElementById('noiseReportForm');
-        const myReportsTableBody = document.getElementById('myReportsTableBody');
-        let submittedReports = []; 
+        let currentHarmonyScore = 74; // Initial score
 
-        const tabMap = document.getElementById('tabMap');
-        const tabComplaints = document.getElementById('tabComplaints');
-        const mapView = document.getElementById('mapView');
-        const complaintsView = document.getElementById('complaintsView');
+        function showSection(id, navLink) {
+            document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
 
-        const noiseTypeSelect = document.getElementById('noiseType');
-        const otherNoiseTypeContainer = document.getElementById('otherNoiseTypeContainer');
-        const otherNoiseTypeInput = document.getElementById('otherNoiseType');
-        const informalResolutionCheckbox = document.getElementById('informalResolution');
-        const informalResolutionOutcomeContainer = document.getElementById('informalResolutionOutcomeContainer');
+            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active-nav'));
+            if (navLink) {
+                navLink.classList.add('active-nav');
+            }
+        }
 
-        const complaintSearchInput = document.getElementById('complaintSearch');
-        const complaintStatusFilter = document.getElementById('complaintStatusFilter');
-        const complaintsTableBody = document.getElementById('complaintsTableBody');
-        const noComplaintsMessage = document.getElementById('noComplaintsMessage');
-        // Store initial rows for filtering, assuming they are static in this prototype
-        const allComplaintRows = Array.from(complaintsTableBody.querySelectorAll('tr[data-status]'));
+        function toggleAccordion(accordionId) {
+            const content = document.getElementById(accordionId);
+            const icon = content.previousElementSibling.querySelector('.accordion-icon');
+            content.classList.toggle('hidden');
+            if (content.classList.contains('hidden')) {
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
 
-
-        const modal = document.getElementById('infoModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalCloseButton = document.getElementById('modalCloseButton');
-        const closeButtonIcon = modal.querySelector('.close-button');
-
-        // --- Accordion Logic ---
-        document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                const icon = header.querySelector('.accordion-icon');
-                
-                // Close other open accordions in the same group if desired
-                // header.closest('.space-y-3').querySelectorAll('.accordion-content.open').forEach(openContent => {
-                //     if (openContent !== content) {
-                //         openContent.classList.remove('open');
-                //         openContent.previousElementSibling.querySelector('.accordion-icon').classList.remove('rotate');
-                //     }
-                // });
-
-                content.classList.toggle('open');
-                icon.classList.toggle('rotate');
+        // Show/hide specific day input
+        const criticalDaysCheckboxes = document.querySelectorAll('input[name="critical-days"]');
+        const specificCriticalDaysInput = document.getElementById('specific-critical-days');
+        criticalDaysCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.value === 'specific' && this.checked) {
+                    specificCriticalDaysInput.classList.remove('hidden');
+                } else if (this.value === 'specific' && !this.checked) {
+                     specificCriticalDaysInput.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Show/hide other bothering noise textarea
+        const botheringNoisesCheckboxes = document.querySelectorAll('input[name="bothering-noises"]');
+        const otherBotheringNoiseTextarea = document.getElementById('other-bothering-noise');
+        botheringNoisesCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                 // Check if the "Other" checkbox specifically is checked
+                const otherCheckbox = Array.from(botheringNoisesCheckboxes).find(cb => cb.nextElementSibling.textContent.trim() === 'Other');
+                if (otherCheckbox && otherCheckbox.checked) {
+                    otherBotheringNoiseTextarea.classList.remove('hidden');
+                } else {
+                    otherBotheringNoiseTextarea.classList.add('hidden');
+                }
             });
         });
 
 
-        // --- Utility Functions ---
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.innerHTML = message; 
-            modal.style.display = "block";
+        // Dynamic household noise details
+        const householdNoisesCheckboxes = document.querySelectorAll('input[name="household-noises"]');
+        const householdNoiseDetailsContainer = document.getElementById('household-noise-details');
+        const noiseDetailTemplates = {
+            'tv-music': { label: 'TV/Music Details', placeholder: 'e.g., Evenings, moderate volume' },
+            'instruments': { label: 'Musical Instruments Details', placeholder: 'e.g., Guitar, 6-8 PM weekdays' },
+            'children': { label: 'Children Playing Details', placeholder: 'e.g., Afternoons, indoor/outdoor' },
+            'pets': { label: 'Pet Noise Details', placeholder: 'e.g., Dog barks when mail arrives' },
+            'hobbies': { label: 'Hobbies/DIY Details', placeholder: 'e.g., Woodworking, Sat 10am-2pm' },
+            'gatherings': { label: 'Gatherings Details', placeholder: 'e.g., Monthly, ends by 11 PM' },
+            'appliances': { label: 'Appliance Noise Details', placeholder: 'e.g., Washing machine, daytime runs' },
+            'exercise': { label: 'Exercise Equipment Details', placeholder: 'e.g., Treadmill, morning runs' },
+            'other': { label: 'Other Household Noise Details', placeholder: 'Specify noise and typical times' }
+        };
+
+        householdNoisesCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateHouseholdNoiseDetails();
+            });
+        });
+
+        function updateHouseholdNoiseDetails() {
+            householdNoiseDetailsContainer.innerHTML = ''; // Clear current details
+            let hasDetails = false;
+            householdNoisesCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    hasDetails = true;
+                    const template = noiseDetailTemplates[checkbox.value];
+                    if (template) {
+                        const detailDiv = document.createElement('div');
+                        detailDiv.className = 'p-3 bg-gray-700 rounded-md border border-gray-600';
+                        detailDiv.innerHTML = `
+                            <label for="detail-${checkbox.value}" class="block text-sm font-medium text-gray-300 mb-1">${template.label}:</label>
+                            <textarea id="detail-${checkbox.value}" rows="2" placeholder="${template.placeholder}" class="w-full p-2 rounded-md bg-gray-800 border-gray-600"></textarea>
+                        `;
+                        householdNoiseDetailsContainer.appendChild(detailDiv);
+                    }
+                }
+            });
+             if(hasDetails) householdNoiseDetailsContainer.classList.remove('hidden'); else householdNoiseDetailsContainer.classList.add('hidden');
+        }
+        updateHouseholdNoiseDetails(); // Initial call
+
+
+        // Harmonize Page Logic
+        function updateHarmony(points, buttonElement) {
+            // Prevent multiple clicks on the same positive action
+            if (buttonElement.classList.contains('opacity-50')) return;
+
+            currentHarmonyScore = Math.min(100, Math.max(0, currentHarmonyScore + points));
+            const meterBar = document.getElementById('harmony-meter-bar');
+            meterBar.style.width = currentHarmonyScore + '%';
+            meterBar.textContent = currentHarmonyScore + '%';
+
+            // If it's a positive contribution, disable further clicks on this specific positive button
+            if (points > 0 && buttonElement.classList.contains('primary-button')) {
+                 // Disable both buttons in the group to prevent toggling back and forth easily
+                const parentDiv = buttonElement.parentElement;
+                parentDiv.querySelectorAll('button').forEach(btn => {
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.disabled = true;
+                });
+                 buttonElement.classList.remove('opacity-50', 'cursor-not-allowed'); // Re-enable the clicked one slightly
+                 buttonElement.disabled = false;
+                 // Show a message
+                 showModalMessage(`Thanks for your commitment! Your harmony score increased by ${points} points.`);
+            }
+        }
+
+        function openExplanation(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.classList.toggle('hidden');
+            if (!textarea.classList.contains('hidden')) {
+                textarea.focus();
+                 showModalMessage("Your anonymous explanation helps build understanding. Please be constructive.");
+            }
+        }
+
+        // Modal Logic
+        const messageModal = document.getElementById('messageModal');
+        const modalMessageText = document.getElementById('modalMessageText');
+
+        function showModalMessage(message) {
+            modalMessageText.textContent = message;
+            messageModal.classList.remove('hidden');
         }
 
         function closeModal() {
-            modal.style.display = "none";
+            messageModal.classList.add('hidden');
         }
 
-        modalCloseButton.onclick = closeModal;
-        closeButtonIcon.onclick = closeModal;
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
 
-        // --- View Switching Logic ---
-        viewSwitcher.addEventListener('change', (event) => {
-            const selectedView = event.target.value;
-            if (selectedView === 'resident') {
-                residentView.classList.remove('hidden');
-                municipalView.classList.add('hidden');
+        // Initial setup
+        showSection('profile', document.querySelector('nav a')); // Show profile by default
+        // Initialize accordion icons correctly
+        document.querySelectorAll('.accordion-content').forEach(content => {
+            const icon = content.previousElementSibling.querySelector('.accordion-icon');
+            if (content.classList.contains('hidden')) {
+                icon.style.transform = 'rotate(0deg)';
             } else {
-                residentView.classList.add('hidden');
-                municipalView.classList.remove('hidden');
-                showMapView(); // Default to map view
+                icon.style.transform = 'rotate(180deg)';
             }
         });
-
-        // --- Resident View Logic ---
-        noiseTypeSelect.addEventListener('change', function() {
-            if (this.value === 'other') {
-                otherNoiseTypeContainer.classList.remove('hidden');
-                otherNoiseTypeInput.required = true;
-            } else {
-                otherNoiseTypeContainer.classList.add('hidden');
-                otherNoiseTypeInput.required = false;
-            }
-        });
-
-        informalResolutionCheckbox.addEventListener('change', function() {
-            informalResolutionOutcomeContainer.classList.toggle('hidden', !this.checked);
-        });
-
-        noiseReportForm.addEventListener('submit', (event) => {
-            event.preventDefault(); 
-            const formData = new FormData(noiseReportForm);
-            const reportData = Object.fromEntries(formData.entries());
-            
-            if (!noiseReportForm.checkValidity()) {
-                // HTML5 validation will show messages for required fields
-                // Optionally, show a general modal
-                showModal("Incomplete Form", "Please fill in all required fields marked with an asterisk (*).");
-                // Trigger HTML5 validation UI
-                noiseReportForm.reportValidity();
-                return;
-            }
-
-            reportData.id = `REP-${Date.now().toString().slice(-5)}`;
-            reportData.status = "Submitted"; 
-
-            submittedReports.push(reportData);
-            renderMyReports();
-            showModal("Report Submitted", `Thank you! Your noise report (ID: ${reportData.id}) has been submitted successfully.`);
-            noiseReportForm.reset(); 
-            otherNoiseTypeContainer.classList.add('hidden');
-            otherNoiseTypeInput.required = false;
-            informalResolutionOutcomeContainer.classList.add('hidden');
-            // Close all accordions
-            document.querySelectorAll('.accordion-content.open').forEach(openContent => {
-                openContent.classList.remove('open');
-                openContent.previousElementSibling.querySelector('.accordion-icon').classList.remove('rotate');
-            });
-        });
-
-        function renderMyReports() {
-            if (submittedReports.length === 0) {
-                myReportsTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No reports submitted yet.</td></tr>';
-                return;
-            }
-
-            myReportsTableBody.innerHTML = ''; 
-            submittedReports.forEach(report => {
-                const row = myReportsTableBody.insertRow();
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${report.noiseDate || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${report.noiseTime || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${report.noiseType === 'other' ? (report.otherNoiseType || 'Other') : (report.noiseType || 'N/A')}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs" title="${report.noiseLocation}">${report.noiseLocation || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${report.status}</span></td>
-                `;
-            });
-        }
-
-        // --- Municipal View Logic ---
-        function showMapView() {
-            mapView.classList.remove('hidden');
-            complaintsView.classList.add('hidden');
-            tabMap.classList.add('tab-active');
-            tabMap.classList.remove('tab-inactive');
-            tabComplaints.classList.remove('tab-active');
-            tabComplaints.classList.add('tab-inactive');
-        }
-
-        function showComplaintsView() {
-            mapView.classList.add('hidden');
-            complaintsView.classList.remove('hidden');
-            tabComplaints.classList.add('tab-active');
-            tabComplaints.classList.remove('tab-inactive');
-            tabMap.classList.remove('tab-active');
-            tabMap.classList.add('tab-inactive');
-            filterAndSearchComplaints(); 
-        }
-
-        tabMap.addEventListener('click', showMapView);
-        tabComplaints.addEventListener('click', showComplaintsView);
-
-        document.querySelectorAll('.hotspot').forEach(hotspot => {
-            // Tooltips are now CSS-driven on hover. Click can be for modal.
-            hotspot.addEventListener('click', () => {
-                const tooltipContent = hotspot.querySelector('.tooltip').innerHTML; // Get rich content
-                showModal("Hotspot Details", tooltipContent);
-            });
-        });
-
-        function filterAndSearchComplaints() {
-            const searchTerm = complaintSearchInput.value.toLowerCase();
-            const statusFilter = complaintStatusFilter.value;
-            let hasVisibleRows = false;
-
-            allComplaintRows.forEach(row => {
-                const rowStatus = row.dataset.status;
-                const rowTextContent = row.textContent.toLowerCase();
-                
-                const statusMatch = (statusFilter === 'all' || rowStatus === statusFilter);
-                const searchMatch = (!searchTerm || rowTextContent.includes(searchTerm));
-
-                if (statusMatch && searchMatch) {
-                    row.classList.remove('hidden');
-                    hasVisibleRows = true;
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-            noComplaintsMessage.classList.toggle('hidden', hasVisibleRows);
-        }
-
-        complaintSearchInput.addEventListener('input', filterAndSearchComplaints);
-        complaintStatusFilter.addEventListener('change', filterAndSearchComplaints);
-        
-        complaintsTableBody.addEventListener('click', function(event) {
-            if (event.target.classList.contains('view-details-btn')) {
-                const row = event.target.closest('tr');
-                const complaintId = row.cells[0].textContent;
-                const complaintDate = row.cells[1].textContent;
-                const complaintLocation = row.cells[2].textContent;
-                const complaintType = row.cells[3].textContent;
-                const complaintStatus = row.cells[4].textContent; 
-
-                const detailsHtml = `
-                    <p><strong>ID:</strong> ${complaintId}</p>
-                    <p><strong>Date Filed:</strong> ${complaintDate}</p>
-                    <p><strong>Location:</strong> ${complaintLocation}</p>
-                    <p><strong>Type:</strong> ${complaintType}</p>
-                    <p><strong>Status:</strong> ${complaintStatus}</p>
-                    <hr class="my-3">
-                    <p class="font-semibold text-gray-700">Mock Details for ${complaintId}:</p>
-                    <ul class="list-disc list-inside text-gray-600 space-y-1 mt-2">
-                        <li>Initial report received from resident regarding ${complaintType.toLowerCase()} at ${complaintLocation}.</li>
-                        <li>Log entry: Officer Schmidt assigned for initial assessment on ${new Date(new Date(complaintDate).getTime() + 2*24*60*60*1000).toLocaleDateString('de-DE')}.</li>
-                        ${complaintType.toLowerCase().includes('dog') ? `<li>Cross-referenced with local dog ownership registry. Owner: Max Mustermann.</li><li>Note: Previous informal warnings regarding barking for this address.</li>` : ''}
-                        ${complaintStatus.toLowerCase().includes('mediation') ? `<li>Mediation session scheduled with affected parties for ${new Date(new Date(complaintDate).getTime() + 10*24*60*60*1000).toLocaleDateString('de-DE')}.</li>` : ''}
-                        <li>Further actions pending outcome of review/mediation.</li>
-                    </ul>
-                `;
-                showModal(`Complaint Details: ${complaintId}`, detailsHtml);
-            }
-        });
-
-        // --- Initial Setup ---
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        renderMyReports(); 
-        filterAndSearchComplaints(); 
-        // Ensure otherNoiseTypeInput is not required initially
-        otherNoiseTypeInput.required = false;
     </script>
-
 </body>
 </html>
