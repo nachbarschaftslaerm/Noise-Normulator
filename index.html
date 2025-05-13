@@ -5,125 +5,199 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Noise Normulator - Harmonize Your Hood</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --text-color-muted: #a0aec0;
+            --card-bg: #2d3748;
+            --card-border: #4a5568;
+            --nav-bg: #2d3748;
+            --accordion-button-bg: #4a5568;
+            --accordion-button-hover-bg: #63b3ed;
+            --input-bg: #1a202c;
+            --input-border: #4a5568;
+            --input-focus-border: #63b3ed;
+            --button-primary-bg: #63b3ed;
+            --button-primary-text: #1a202c;
+            --button-primary-hover-bg: #90cdf4;
+            --button-secondary-bg: #4a5568;
+            --button-secondary-text: #e2e8f0;
+            --button-secondary-hover-bg: #718096;
+            --slider-track-bg: #4a5568; /* Updated from gray-700 for consistency */
+            --slider-thumb-bg: #63b3ed;
+            --section-title-color: #9f7aea; /* Retained for a touch of color, but not Press Start 2P */
+            --harmony-meter-bg: #4a5568;
+            --harmony-meter-border: #718096;
+            --modal-bg: #2d3748; /* Updated from gray-800 */
+        }
+
+        .light-mode {
+            --bg-color: #f7fafc; /* Tailwind gray-100 */
+            --text-color: #2d3748; /* Tailwind gray-800 */
+            --text-color-muted: #718096; /* Tailwind gray-500 */
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0; /* Tailwind gray-300 */
+            --nav-bg: #ffffff;
+            --accordion-button-bg: #edf2f7; /* Tailwind gray-200 */
+            --accordion-button-hover-bg: #bee3f8; /* Tailwind blue-200 */
+            --input-bg: #ffffff;
+            --input-border: #cbd5e0; /* Tailwind gray-400 */
+            --input-focus-border: #63b3ed;
+            --button-primary-bg: #4299e1; /* Tailwind blue-500 */
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #63b3ed; /* Tailwind blue-400 */
+            --button-secondary-bg: #e2e8f0; /* Tailwind gray-300 */
+            --button-secondary-text: #2d3748;
+            --button-secondary-hover-bg: #cbd5e0; /* Tailwind gray-400 */
+            --slider-track-bg: #e2e8f0;
+            --slider-thumb-bg: #4299e1;
+            --section-title-color: #6b46c1; /* Darker purple for light mode */
+            --harmony-meter-bg: #e2e8f0;
+            --harmony-meter-border: #cbd5e0;
+            --modal-bg: #ffffff;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Dark background for a modern feel */
-            color: #e2e8f0; /* Light text for contrast */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         nav {
-            background-color: #2d3748; /* Slightly lighter dark for nav */
+            background-color: var(--nav-bg);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease;
         }
         nav a {
             transition: all 0.3s ease;
             border-bottom: 2px solid transparent;
+            color: var(--text-color-muted); /* Muted color for nav links */
         }
         nav a:hover, nav a.active-nav {
-            color: #63b3ed; /* Light blue for hover/active */
-            border-bottom-color: #63b3ed;
+            color: var(--input-focus-border); /* Using the focus border color for active/hover */
+            border-bottom-color: var(--input-focus-border);
         }
-        .section-title {
-            font-family: 'Press Start 2P', cursive;
-            color: #9f7aea; /* Purple for gamified titles */
-            text-shadow: 2px 2px #000;
+        .section-main-title {
+            font-size: 2.25rem; /* text-4xl */
+            line-height: 2.5rem;
+            font-weight: 700; /* bold */
+            color: var(--section-title-color); /* Using the theme variable */
+            text-align: center;
+            margin-bottom: 0.5rem; /* space between title and subtitle */
+        }
+        .section-subtitle {
+            font-size: 1rem; /* text-base */
+            color: var(--text-color-muted);
+            text-align: center;
+            max-width: 60ch; /* Limit width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 2rem; /* space after subtitle */
         }
         .card {
-            background-color: #2d3748; /* Card background */
-            border: 1px solid #4a5568; /* Card border */
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); /* Softer shadow */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .accordion-button {
-            background-color: #4a5568; /* Accordion button background */
+            background-color: var(--accordion-button-bg);
+            color: var(--text-color);
             transition: background-color 0.3s ease;
         }
         .accordion-button:hover {
-            background-color: #63b3ed; /* Lighter blue on hover */
+            background-color: var(--accordion-button-hover-bg);
         }
         .accordion-content {
-            background-color: #2d3748; /* Slightly lighter than card for depth */
-            border-top: 1px solid #4a5568;
+            background-color: var(--card-bg); /* Match card background for content */
+            border-top: 1px solid var(--card-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .slider-thumb { /* Applied to the input type=range directly */
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px; /* For the track */
+            height: 20px; /* For the track */
+            background: var(--slider-track-bg); /* Track color */
+            cursor: pointer;
+            border-radius: 0.5rem; /* Rounded track */
         }
         .slider-thumb::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #63b3ed;
-            cursor: pointer;
+            width: 24px; /* Thumb size */
+            height: 24px; /* Thumb size */
+            background: var(--slider-thumb-bg);
             border-radius: 50%;
-            border: 2px solid #1a202c;
+            border: 3px solid var(--bg-color); /* Border to match body background, creating a halo effect */
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
         .slider-thumb::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #63b3ed;
-            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            background: var(--slider-thumb-bg);
             border-radius: 50%;
-            border: 2px solid #1a202c;
+            border: 3px solid var(--bg-color);
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
         .checkbox-group label, .radio-group label {
-            background-color: #4a5568;
+            background-color: var(--accordion-button-bg); /* Use accordion button bg for consistency */
             transition: background-color 0.3s ease, transform 0.2s ease;
-            border: 1px solid #718096;
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
         }
         .checkbox-group input:checked + span, .radio-group input:checked + span {
-            background-color: #63b3ed;
-            color: #1a202c;
+            background-color: var(--button-primary-bg);
+            color: var(--button-primary-text);
             font-weight: 600;
         }
          .checkbox-group label:hover, .radio-group label:hover {
-            background-color: #718096;
+            background-color: var(--accordion-button-hover-bg);
             transform: translateY(-2px);
         }
 
         input[type="text"], input[type="time"], textarea, select {
-            background-color: #1a202c;
-            border: 1px solid #4a5568;
-            color: #e2e8f0;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         input[type="text"]:focus, input[type="time"]:focus, textarea:focus, select:focus {
-            border-color: #63b3ed;
-            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5);
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px alpha(var(--input-focus-border), 0.5); /* Needs a JS polyfill or Tailwind's ring utilities if alpha() isn't supported directly */
             outline: none;
         }
         button.primary-button {
-            background-color: #63b3ed; /* Primary action blue */
-            color: #1a202c;
+            background-color: var(--button-primary-bg);
+            color: var(--button-primary-text);
             font-weight: bold;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         button.primary-button:hover {
-            background-color: #90cdf4; /* Lighter blue on hover */
+            background-color: var(--button-primary-hover-bg);
             transform: translateY(-2px);
         }
         button.secondary-button {
-            background-color: #4a5568;
-            color: #e2e8f0;
+            background-color: var(--button-secondary-bg);
+            color: var(--button-secondary-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         button.secondary-button:hover {
-            background-color: #718096;
+            background-color: var(--button-secondary-hover-bg);
         }
 
-        /* Harmony/Conflict Colors */
-        .harmony-high { color: #48bb78; } /* Green */
-        .harmony-mid { color: #f6e05e; } /* Yellow */
-        .harmony-low { color: #f56565; } /* Red */
-
-        .importance-high { border-left: 4px solid #f56565; }
-        .importance-mid { border-left: 4px solid #f6e05e; }
-        .importance-low { border-left: 4px solid #48bb78; }
-
-        /* Meter styling */
         .harmony-meter-container {
             width: 100%;
-            background-color: #4a5568;
+            background-color: var(--harmony-meter-bg);
             border-radius: 0.5rem;
             overflow: hidden;
             height: 30px;
-            border: 2px solid #718096;
+            border: 2px solid var(--harmony-meter-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .harmony-meter-bar {
             height: 100%;
@@ -133,258 +207,533 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #1a202c;
+            color: #1a202c; /* Text on meter bar should remain dark for legibility */
         }
         .sound-source-icon {
-            font-size: 1.5rem; /* Adjust as needed */
+            font-size: 1.5rem;
             margin-right: 0.5rem;
         }
+        .theme-toggle-button, .lang-toggle-button {
+            background-color: var(--accordion-button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .theme-toggle-button:hover, .lang-toggle-button:hover {
+            background-color: var(--accordion-button-hover-bg);
+        }
+        .modal-content-area { /* For the modal itself */
+            background-color: var(--modal-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
     </style>
 </head>
 <body class="min-h-screen">
-    <nav class="p-4 flex justify-around items-center sticky top-0 z-50">
-        <a href="#" onclick="showSection('profile', this)" class="text-lg font-semibold p-2 active-nav">Your Preferences</a>
-        <a href="#" onclick="showSection('harmonize', this)" class="text-lg font-semibold p-2">Harmonize</a>
-        <a href="#" onclick="showSection('complaints', this)" class="text-lg font-semibold p-2">Report Concern</a>
+    <nav class="p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex justify-start items-center space-x-4 md:space-x-6">
+            <a href="#" onclick="showSection('profileQuiet', this)" class="text-sm md:text-lg font-semibold p-2 active-nav" data-translate-key="nav_pref_quiet">Preferences for Quiet</a>
+            <a href="#" onclick="showSection('profileNoise', this)" class="text-sm md:text-lg font-semibold p-2" data-translate-key="nav_pref_noise">Preferences for Making Noise</a>
+            <a href="#" onclick="showSection('harmonize', this)" class="text-sm md:text-lg font-semibold p-2" data-translate-key="nav_harmonize">Harmonize</a>
+            <a href="#" onclick="showSection('complaints', this)" class="text-sm md:text-lg font-semibold p-2" data-translate-key="nav_report">Report Concern</a>
+        </div>
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <button id="themeToggle" class="theme-toggle-button">
+                <svg id="themeIconSun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-15.66l-.707.707M5.049 18.951l-.707.707M21 12h-1M4 12H3m15.66 8.66l-.707-.707M5.049 5.049l-.707-.707M12 5.172A6.83 6.83 0 005.172 12 6.83 6.83 0 0012 18.828a6.83 6.83 0 006.828-6.828A6.83 6.83 0 0012 5.172z" /></svg>
+                <svg id="themeIconMoon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+            <button id="langToggleEn" class="lang-toggle-button text-sm">🇬🇧</button>
+            <button id="langToggleDe" class="lang-toggle-button text-sm">🇩🇪</button>
+        </div>
     </nav>
 
     <main class="p-4 md:p-8">
-        <section id="profile" class="active space-y-8">
-            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Your Sound Profile</h2>
-
+        <section id="profileQuiet" class="active space-y-8">
+            <h2 class="section-main-title" data-translate-key="title_profile_quiet">Your Preferences for Quiet</h2>
+            <p class="section-subtitle" data-translate-key="subtitle_profile_quiet">Help us understand your needs for a peaceful environment. Your information is kept confidential and used to foster better neighborhood understanding.</p>
+            
             <div class="card rounded-lg overflow-hidden">
                 <button onclick="toggleAccordion('accordion-sensitivity')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
-                    <span>🔊 Your Sound Sensitivity</span>
+                    <span data-translate-key="accordion_sensitivity_title">🔊 Your Sound Sensitivity</span>
                     <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
                 </button>
                 <div id="accordion-sensitivity" class="accordion-content p-6 space-y-6 hidden">
                     <div>
-                        <label for="noise-sensitivity" class="block text-sm font-medium text-gray-300 mb-1">How would you describe your general sensitivity to noise?</label>
-                        <input type="range" id="noise-sensitivity" min="1" max="5" value="3" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        <label for="noise-sensitivity" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_noise_sensitivity">How would you describe your general sensitivity to noise?</label>
+                        <input type="range" id="noise-sensitivity" min="1" max="5" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer slider-thumb">
                         <div class="flex justify-between text-xs text-gray-400 mt-1">
-                            <span>Very Low</span><span>Low</span><span>Medium</span><span>High</span><span>Very High</span>
+                            <span data-translate-key="sensitivity_very_low">Very Low</span><span data-translate-key="sensitivity_low">Low</span><span data-translate-key="sensitivity_medium">Medium</span><span data-translate-key="sensitivity_high">High</span><span data-translate-key="sensitivity_very_high">Very High</span>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">What time of day are you most sensitive to noise?</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_sensitivity_time">What time of day are you most sensitive to noise?</label>
                         <div class="checkbox-group grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="morning"> <span class="block p-2 rounded-md">Morning</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="afternoon"> <span class="block p-2 rounded-md">Afternoon</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="evening"> <span class="block p-2 rounded-md">Evening</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="night"> <span class="block p-2 rounded-md">Night</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="morning"> <span class="block p-2 rounded-md" data-translate-key="time_morning">Morning</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="afternoon"> <span class="block p-2 rounded-md" data-translate-key="time_afternoon">Afternoon</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="evening"> <span class="block p-2 rounded-md" data-translate-key="time_evening">Evening</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="sensitivity-time" value="night"> <span class="block p-2 rounded-md" data-translate-key="time_night">Night</span></label>
                         </div>
                     </div>
                     <div>
-                        <label for="critical-quiet-times" class="block text-sm font-medium text-gray-300 mb-1">What specific times are crucial for your quiet? (e.g., work calls 2-4pm, baby's nap 1-3pm)</label>
-                        <input type="text" id="critical-quiet-times" placeholder="e.g., Mon 10am-12pm for meetings" class="w-full p-2 rounded-md">
+                        <label for="critical-quiet-times" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_critical_quiet_times">What specific times are crucial for your quiet?</label>
+                        <input type="text" id="critical-quiet-times" data-translate-key="placeholder_critical_quiet_times" placeholder="e.g., Mon 10am-12pm for meetings" class="w-full p-2 rounded-md">
                     </div>
                      <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Which days are most critical for quiet?</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_critical_days">Which days are most critical for quiet?</label>
                         <div class="checkbox-group grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekdays"> <span class="block p-2 rounded-md">Weekdays</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekends"> <span class="block p-2 rounded-md">Weekends</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="specific"> <span class="block p-2 rounded-md">Specific Days (add below)</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekdays"> <span class="block p-2 rounded-md" data-translate-key="days_weekdays">Weekdays</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="weekends"> <span class="block p-2 rounded-md" data-translate-key="days_weekends">Weekends</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" class="hidden" name="critical-days" value="specific"> <span class="block p-2 rounded-md" data-translate-key="days_specific">Specific Days (add below)</span></label>
                         </div>
-                        <input type="text" id="specific-critical-days" placeholder="e.g., Sundays" class="w-full p-2 rounded-md mt-2 hidden">
+                        <input type="text" id="specific-critical-days" data-translate-key="placeholder_specific_days" placeholder="e.g., Sundays" class="w-full p-2 rounded-md mt-2 hidden">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">What types of noise from neighbors bother you most?</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_bothering_noises">What types of noise from neighbors bother you most?</label>
                         <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Loud Music/TV</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Talking/Shouting</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Footsteps/Impact</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Construction/DIY</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Pets (barking, etc.)</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Children Playing</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Parties/Gatherings</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Outdoor Equipment</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md">Other</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_loud_music">Loud Music/TV</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_talking_shouting">Talking/Shouting</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_footsteps">Footsteps/Impact</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_construction">Construction/DIY</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_pets_bother">Pets (barking, etc.)</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_children_playing_bother">Children Playing</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_parties">Parties/Gatherings</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_outdoor_equip">Outdoor Equipment</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="bothering-noises"><span class="block p-2 rounded-md" data-translate-key="noise_other_bother">Other</span></label>
                         </div>
-                        <textarea id="other-bothering-noise" placeholder="Specify other noises..." class="w-full p-2 rounded-md mt-2 hidden" rows="2"></textarea>
+                        <textarea id="other-bothering-noise" data-translate-key="placeholder_other_bothering_noise" placeholder="Specify other noises..." class="w-full p-2 rounded-md mt-2 hidden" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <label for="willingness-adjust-timing" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_willingness_adjust_timing">How willing are you to adjust timing of noisy activities if a neighbor requests?</label>
+                        <input type="range" id="willingness-adjust-timing" min="1" max="5" value="3" class="w-full h-3 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span data-translate-key="willingness_not">Not Willing</span><span></span><span data-translate-key="willingness_neutral">Neutral</span><span></span><span data-translate-key="willingness_very">Very Willing</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_approach_preference">Preferred way to be approached about a noise concern you might be causing?</label>
+                        <div class="radio-group grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="direct"><span class="block p-2 rounded-md" data-translate-key="approach_direct">Direct Chat</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="anonymous"><span class="block p-2 rounded-md" data-translate-key="approach_anonymous">Anonymous Note</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="hoa"><span class="block p-2 rounded-md" data-translate-key="approach_hoa">Via Mgmt/HOA</span></label>
+                        </div>
                     </div>
                 </div>
             </div>
+            <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg" data-translate-key="button_save_quiet_profile">Save Quiet Preferences</button>
+        </section>
+
+        <section id="profileNoise" class="hidden space-y-8">
+            <h2 class="section-main-title" data-translate-key="title_profile_noise">Your Preferences for Making Noise</h2>
+            <p class="section-subtitle" data-translate-key="subtitle_profile_noise">Share information about your household's typical sounds. This helps in finding a balance with your neighbors. All data is handled with care.</p>
 
             <div class="card rounded-lg overflow-hidden">
                 <button onclick="toggleAccordion('accordion-sound-output')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
-                    <span>🏡 Your Household's Sound Output</span>
+                    <span data-translate-key="accordion_sound_output_title">🏡 Your Household's Sound Output</span>
                     <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
                 </button>
                 <div id="accordion-sound-output" class="accordion-content p-6 space-y-6 hidden">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Primary sources of noise from your household?</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_household_noises">Primary sources of noise from your household?</label>
                         <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="tv-music"><span class="block p-2 rounded-md">TV/Music</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="instruments"><span class="block p-2 rounded-md">Instruments</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="children"><span class="block p-2 rounded-md">Children Playing</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="pets"><span class="block p-2 rounded-md">Pets</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="hobbies"><span class="block p-2 rounded-md">Hobbies (DIY, etc.)</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="gatherings"><span class="block p-2 rounded-md">Gatherings</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="appliances"><span class="block p-2 rounded-md">Appliances</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="exercise"><span class="block p-2 rounded-md">Exercise Equip.</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="other"><span class="block p-2 rounded-md">Other</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="tv-music"><span class="block p-2 rounded-md" data-translate-key="noise_tv_music_own">TV/Music</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="instruments"><span class="block p-2 rounded-md" data-translate-key="noise_instruments_own">Instruments</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="children"><span class="block p-2 rounded-md" data-translate-key="noise_children_own">Children Playing</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="pets"><span class="block p-2 rounded-md" data-translate-key="noise_pets_own">Pets</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="hobbies"><span class="block p-2 rounded-md" data-translate-key="noise_hobbies_own">Hobbies (DIY, etc.)</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="gatherings"><span class="block p-2 rounded-md" data-translate-key="noise_gatherings_own">Gatherings</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="appliances"><span class="block p-2 rounded-md" data-translate-key="noise_appliances_own">Appliances</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="exercise"><span class="block p-2 rounded-md" data-translate-key="noise_exercise_own">Exercise Equip.</span></label>
+                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="household-noises" value="other"><span class="block p-2 rounded-md" data-translate-key="noise_other_own">Other</span></label>
                         </div>
-                        <div id="household-noise-details" class="mt-4 space-y-4">
-                            </div>
+                        <div id="household-noise-details" class="mt-4 space-y-4 hidden"> </div>
                     </div>
                 </div>
             </div>
-
-            <div class="card rounded-lg overflow-hidden">
+             <div class="card rounded-lg overflow-hidden">
                 <button onclick="toggleAccordion('accordion-management')" class="accordion-button w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
-                    <span>🤝 Sound Management & Flexibility</span>
+                    <span data-translate-key="accordion_management_title">🛠️ Sound Management Measures</span>
                     <span class="accordion-icon transform transition-transform duration-300 ">▼</span>
                 </button>
                 <div id="accordion-management" class="accordion-content p-6 space-y-6 hidden">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Steps you currently take to minimize your noise?</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_management_steps">Steps you currently take to minimize your noise?</label>
                         <div class="checkbox-group grid grid-cols-2 md:grid-cols-3 gap-2">
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Soundproofing</span></label>
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Scheduling</span></label>
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Headphones</span></label>
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Pet Training</span></label>
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Rugs/Curtains</span></label>
-                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md">Other</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_soundproofing">Soundproofing</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_scheduling">Scheduling</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_headphones">Headphones</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_pet_training">Pet Training</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_rugs">Rugs/Curtains</span></label>
+                             <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="management-steps"><span class="block p-2 rounded-md" data-translate-key="manage_other">Other</span></label>
                         </div>
                     </div>
-                    <div>
-                        <label for="willingness-adjust-timing" class="block text-sm font-medium text-gray-300 mb-1">How willing are you to adjust timing of noisy activities?</label>
-                        <input type="range" id="willingness-adjust-timing" min="1" max="5" value="3" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
-                        <div class="flex justify-between text-xs text-gray-400 mt-1">
-                            <span>Not Willing</span><span></span><span>Neutral</span><span></span><span>Very Willing</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label for="willingness-sound-dampening" class="block text-sm font-medium text-gray-300 mb-1">How willing to invest in sound-dampening (e.g., rugs)?</label>
-                        <input type="range" id="willingness-sound-dampening" min="1" max="5" value="2" class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                     <div>
+                        <label for="willingness-sound-dampening" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_willingness_sound_dampening">How willing are you to invest in sound-dampening (e.g., rugs, panels) for your own noise?</label>
+                        <input type="range" id="willingness-sound-dampening" min="1" max="5" value="2" class="w-full h-3 rounded-lg appearance-none cursor-pointer slider-thumb">
                          <div class="flex justify-between text-xs text-gray-400 mt-1">
-                            <span>Not Willing</span><span></span><span>Neutral</span><span></span><span>Very Willing</span>
+                            <span data-translate-key="willingness_not">Not Willing</span><span></span><span data-translate-key="willingness_neutral">Neutral</span><span></span><span data-translate-key="willingness_very">Very Willing</span>
                         </div>
                     </div>
                     <div>
-                        <label for="unavoidable-noises" class="block text-sm font-medium text-gray-300 mb-1">Are there noises you make that you believe are unavoidable? Please explain.</label>
-                        <textarea id="unavoidable-noises" rows="3" placeholder="e.g., Baby crying, essential medical equipment" class="w-full p-2 rounded-md"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Preferred way to be approached about a noise concern?</label>
-                        <div class="radio-group grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="direct"><span class="block p-2 rounded-md">Direct Chat</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="anonymous"><span class="block p-2 rounded-md">Anonymous Note</span></label>
-                            <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="approach-preference" value="hoa"><span class="block p-2 rounded-md">Via Mgmt/HOA</span></label>
-                        </div>
+                        <label for="unavoidable-noises" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_unavoidable_noises">Are there noises you make that you believe are unavoidable? Please explain.</label>
+                        <textarea id="unavoidable-noises" rows="3" data-translate-key="placeholder_unavoidable_noises" placeholder="e.g., Baby crying, essential medical equipment" class="w-full p-2 rounded-md"></textarea>
                     </div>
                 </div>
             </div>
-            <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg">Save My Sound Profile</button>
+            <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg" data-translate-key="button_save_noise_profile">Save Noise Output Preferences</button>
         </section>
 
         <section id="harmonize" class="hidden space-y-8">
-            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Harmonize With Your Neighbors</h2>
+            <h2 class="section-main-title" data-translate-key="title_harmonize">Harmonize With Your Neighbors</h2>
+            <p class="section-subtitle" data-translate-key="subtitle_harmonize">See common neighborhood sound goals and indicate your willingness to adapt. Your responses help build a more considerate community soundscape.</p>
 
             <div class="card rounded-lg p-6">
-                <h3 class="text-2xl font-semibold mb-2 text-yellow-400">Your Community Harmony Score</h3>
+                <h3 class="text-2xl font-semibold mb-2 text-yellow-400" data-translate-key="harmony_score_title">Your Community Harmony Score</h3>
                 <div class="harmony-meter-container mb-4">
                     <div id="harmony-meter-bar" class="harmony-meter-bar" style="width: 74%;">74%</div>
                 </div>
-                <p class="text-sm text-gray-400 mb-4">This score reflects how well your current sound habits align with community preferences. Increase it by signaling your willingness to adapt!</p>
+                <p class="text-sm text-gray-400 mb-4" data-translate-key="harmony_score_desc">This score reflects how well your current sound habits align with community preferences. Increase it by signaling your willingness to adapt!</p>
             </div>
 
             <div class="card rounded-lg p-6 space-y-6">
-                <h3 class="text-xl font-semibold mb-4 text-blue-400">Common Neighborhood Soundscape Goals:</h3>
+                <h3 class="text-xl font-semibold mb-4 text-blue-400" data-translate-key="common_goals_title">Common Neighborhood Soundscape Goals:</h3>
                 
                 <div class="border border-gray-700 rounded-lg p-4 importance-high">
                     <div class="flex items-center mb-3">
                         <span class="sound-source-icon text-red-500">🎵</span>
-                        <h4 class="text-lg font-semibold">Late Night Music (after 10 PM)</h4>
+                        <h4 class="text-lg font-semibold" data-translate-key="goal_late_music_title">Late Night Music (after 10 PM)</h4>
                     </div>
-                    <p class="text-sm text-gray-400 mb-3">Many neighbors have expressed a need for quiet after 10 PM, especially on weekdays, to ensure restful sleep.</p>
-                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <p class="text-sm text-gray-400 mb-3" data-translate-key="goal_late_music_desc">Many neighbors have expressed a need for quiet after 10 PM, especially on weekdays, to ensure restful sleep.</p>
+                    <p class="text-sm text-gray-300 mb-1" data-translate-key="goal_contribute_harmony">How can you contribute to harmony?</p>
                     <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                        <button onclick="updateHarmony(10, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I can adjust (e.g., use headphones, lower volume)</button>
-                        <button onclick="updateHarmony(3, this); openExplanation('music_late')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                        <button onclick="updateHarmony(10, this)" class="flex-1 primary-button p-2 rounded-md text-sm" data-translate-key="button_can_adjust">✅ I can adjust (e.g., use headphones, lower volume)</button>
+                        <button onclick="updateHarmony(3, this); openExplanation('music_late')" class="flex-1 secondary-button p-2 rounded-md text-sm" data-translate-key="button_partial_explain">🤔 Partial / Explain</button>
                     </div>
-                    <textarea id="explanation_music_late" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation or partial adjustment (shared anonymously)"></textarea>
+                    <textarea id="explanation_music_late" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" data-translate-key="placeholder_explain_situation" placeholder="Explain your situation or partial adjustment (shared anonymously)"></textarea>
                 </div>
 
                 <div class="border border-gray-700 rounded-lg p-4 importance-mid">
                      <div class="flex items-center mb-3">
                         <span class="sound-source-icon text-yellow-500">🐾</span>
-                        <h4 class="text-lg font-semibold">Daytime Pet Noise (e.g., barking 1-3 PM)</h4>
+                        <h4 class="text-lg font-semibold" data-translate-key="goal_pet_noise_title">Daytime Pet Noise (e.g., barking 1-3 PM)</h4>
                     </div>
-                    <p class="text-sm text-gray-400 mb-3">Some residents work from home or have young children napping between 1 PM - 3 PM and are sensitive to prolonged pet noise.</p>
-                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <p class="text-sm text-gray-400 mb-3" data-translate-key="goal_pet_noise_desc">Some residents work from home or have young children napping between 1 PM - 3 PM and are sensitive to prolonged pet noise.</p>
+                    <p class="text-sm text-gray-300 mb-1" data-translate-key="goal_contribute_harmony">How can you contribute to harmony?</p>
                     <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                        <button onclick="updateHarmony(8, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I'll try bark-reduction / manage pet</button>
-                        <button onclick="updateHarmony(2, this); openExplanation('pet_daytime')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                        <button onclick="updateHarmony(8, this)" class="flex-1 primary-button p-2 rounded-md text-sm" data-translate-key="button_bark_reduction">✅ I'll try bark-reduction / manage pet</button>
+                        <button onclick="updateHarmony(2, this); openExplanation('pet_daytime')" class="flex-1 secondary-button p-2 rounded-md text-sm" data-translate-key="button_partial_explain">🤔 Partial / Explain</button>
                     </div>
-                     <textarea id="explanation_pet_daytime" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation (e.g., new puppy training) (shared anonymously)"></textarea>
+                     <textarea id="explanation_pet_daytime" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" data-translate-key="placeholder_explain_pet" placeholder="Explain your situation (e.g., new puppy training) (shared anonymously)"></textarea>
                 </div>
 
                  <div class="border border-gray-700 rounded-lg p-4 importance-mid">
                      <div class="flex items-center mb-3">
                         <span class="sound-source-icon text-orange-500">🛠️</span>
-                        <h4 class="text-lg font-semibold">Early Morning DIY (before 9 AM weekends)</h4>
+                        <h4 class="text-lg font-semibold" data-translate-key="goal_diy_title">Early Morning DIY (before 9 AM weekends)</h4>
                     </div>
-                    <p class="text-sm text-gray-400 mb-3">Weekend mornings are valued for rest. Loud DIY or power tool usage before 9 AM can be disruptive.</p>
-                    <p class="text-sm text-gray-300 mb-1">How can you contribute to harmony?</p>
+                    <p class="text-sm text-gray-400 mb-3" data-translate-key="goal_diy_desc">Weekend mornings are valued for rest. Loud DIY or power tool usage before 9 AM can be disruptive.</p>
+                    <p class="text-sm text-gray-300 mb-1" data-translate-key="goal_contribute_harmony">How can you contribute to harmony?</p>
                     <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                        <button onclick="updateHarmony(7, this)" class="flex-1 primary-button p-2 rounded-md text-sm">✅ I can schedule DIY later</button>
-                        <button onclick="updateHarmony(1, this); openExplanation('diy_morning')" class="flex-1 secondary-button p-2 rounded-md text-sm">🤔 Partial / Explain</button>
+                        <button onclick="updateHarmony(7, this)" class="flex-1 primary-button p-2 rounded-md text-sm" data-translate-key="button_schedule_diy">✅ I can schedule DIY later</button>
+                        <button onclick="updateHarmony(1, this); openExplanation('diy_morning')" class="flex-1 secondary-button p-2 rounded-md text-sm" data-translate-key="button_partial_explain">🤔 Partial / Explain</button>
                     </div>
-                     <textarea id="explanation_diy_morning" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" placeholder="Explain your situation (e.g., urgent repair) (shared anonymously)"></textarea>
+                     <textarea id="explanation_diy_morning" class="w-full p-2 rounded-md mt-2 hidden bg-gray-800 border-gray-600" data-translate-key="placeholder_explain_diy" placeholder="Explain your situation (e.g., urgent repair) (shared anonymously)"></textarea>
                 </div>
-                <p class="text-xs text-center text-gray-500 mt-6">Your anonymous explanations help neighbors understand different perspectives and foster empathy.</p>
+                <p class="text-xs text-center text-gray-500 mt-6" data-translate-key="anon_explanation_note">Your anonymous explanations help neighbors understand different perspectives and foster empathy.</p>
             </div>
         </section>
 
         <section id="complaints" class="hidden space-y-8">
-            <h2 class="text-3xl md:text-4xl font-bold text-center section-title mb-8">Report a Sound Concern</h2>
+            <h2 class="section-main-title" data-translate-key="title_complaints">Report a Sound Concern</h2>
+            <p class="section-subtitle" data-translate-key="subtitle_complaints">If you're experiencing a noise issue, you can log it here. Your report can be anonymous and helps in addressing concerns constructively.</p>
             <div class="card rounded-lg p-6 space-y-6 max-w-2xl mx-auto">
                 <div>
-                    <label for="complaint-description" class="block text-sm font-medium text-gray-300 mb-1">Describe the concern (What, When, How often?)</label>
-                    <textarea id="complaint-description" rows="4" placeholder="e.g., Loud parties every Friday night until 3 AM from Apt 3B, with bass shaking walls." class="w-full p-2 rounded-md"></textarea>
+                    <label for="complaint-description" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_complaint_desc">Describe the concern (What, When, How often?)</label>
+                    <textarea id="complaint-description" rows="4" data-translate-key="placeholder_complaint_desc" placeholder="e.g., Loud parties every Friday night until 3 AM from Apt 3B, with bass shaking walls." class="w-full p-2 rounded-md"></textarea>
                 </div>
                 <div>
-                    <label for="complaint-source" class="block text-sm font-medium text-gray-300 mb-1">Source of the noise (Optional, if known)</label>
-                    <input type="text" id="complaint-source" placeholder="e.g., Apt 3B, House #12 (blue fence)" class="w-full p-2 rounded-md">
+                    <label for="complaint-source" class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_complaint_source">Source of the noise (Optional, if known)</label>
+                    <input type="text" id="complaint-source" data-translate-key="placeholder_complaint_source" placeholder="e.g., Apt 3B, House #12 (blue fence)" class="w-full p-2 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Have you tried to communicate with them directly?</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_contact_attempt">Have you tried to communicate with them directly?</label>
                     <div class="radio-group grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="yes"><span class="block p-2 rounded-md">Yes</span></label>
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="no"><span class="block p-2 rounded-md">No</span></label>
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="afraid"><span class="block p-2 rounded-md">I'm hesitant</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="yes"><span class="block p-2 rounded-md" data-translate-key="contact_yes">Yes</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="no"><span class="block p-2 rounded-md" data-translate-key="contact_no">No</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="radio" class="hidden" name="contact-attempt" value="afraid"><span class="block p-2 rounded-md" data-translate-key="contact_hesitant">I'm hesitant</span></label>
                     </div>
                 </div>
                  <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">What kind of support or outcome are you seeking?</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1" data-translate-key="label_support_needed">What kind of support or outcome are you seeking?</label>
                     <div class="checkbox-group grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Anonymous Log</span></label>
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Information for Mgmt</span></label>
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Mediation Tips</span></label>
-                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md">Formal Complaint Route</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md" data-translate-key="support_anon_log">Anonymous Log</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md" data-translate-key="support_info_mgmt">Information for Mgmt</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md" data-translate-key="support_mediation_tips">Mediation Tips</span></label>
+                        <label class="p-3 rounded-md cursor-pointer text-center"><input type="checkbox" name="support-needed"><span class="block p-2 rounded-md" data-translate-key="support_formal_complaint">Formal Complaint Route</span></label>
                     </div>
                 </div>
-                <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg">Submit Concern Anonymously</button>
-                 <p class="text-xs text-center text-gray-500 mt-4">Note: This platform facilitates communication and understanding. For urgent threats or illegal activities, please contact local authorities.</p>
+                <button class="primary-button w-full md:w-auto px-8 py-3 text-lg rounded-lg" data-translate-key="button_submit_complaint">Submit Concern Anonymously</button>
+                 <p class="text-xs text-center text-gray-500 mt-4" data-translate-key="complaint_disclaimer">Note: This platform facilitates communication and understanding. For urgent threats or illegal activities, please contact local authorities.</p>
             </div>
         </section>
     </main>
 
     <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-            <p id="modalMessageText" class="text-lg text-gray-200 mb-4"></p>
-            <button onclick="closeModal()" class="primary-button px-6 py-2 rounded-md">OK</button>
+        <div class="modal-content-area p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="modalMessageText" class="text-lg mb-4"></p>
+            <button onclick="closeModal()" class="primary-button px-6 py-2 rounded-md" data-translate-key="button_ok">OK</button>
         </div>
     </div>
 
-
     <script>
-        let currentHarmonyScore = 74; // Initial score
+        let currentHarmonyScore = 74;
+        let currentLang = localStorage.getItem('noiseNormLang') || 'en';
+        let currentTheme = localStorage.getItem('noiseNormTheme') || 'dark';
+
+        const translations = {
+            en: {
+                nav_pref_quiet: "Preferences for Quiet",
+                nav_pref_noise: "Preferences for Making Noise",
+                nav_harmonize: "Harmonize",
+                nav_report: "Report Concern",
+                title_profile_quiet: "Your Preferences for Quiet",
+                subtitle_profile_quiet: "Help us understand your needs for a peaceful environment. Your information is kept confidential and used to foster better neighborhood understanding.",
+                accordion_sensitivity_title: "🔊 Your Sound Sensitivity",
+                label_noise_sensitivity: "How would you describe your general sensitivity to noise?",
+                sensitivity_very_low: "Very Low", sensitivity_low: "Low", sensitivity_medium: "Medium", sensitivity_high: "High", sensitivity_very_high: "Very High",
+                label_sensitivity_time: "What time of day are you most sensitive to noise?",
+                time_morning: "Morning", time_afternoon: "Afternoon", time_evening: "Evening", time_night: "Night",
+                label_critical_quiet_times: "What specific times are crucial for your quiet?",
+                placeholder_critical_quiet_times: "e.g., Mon 10am-12pm for meetings",
+                label_critical_days: "Which days are most critical for quiet?",
+                days_weekdays: "Weekdays", days_weekends: "Weekends", days_specific: "Specific Days (add below)",
+                placeholder_specific_days: "e.g., Sundays",
+                label_bothering_noises: "What types of noise from neighbors bother you most?",
+                noise_loud_music: "Loud Music/TV", noise_talking_shouting: "Talking/Shouting", noise_footsteps: "Footsteps/Impact", noise_construction: "Construction/DIY", noise_pets_bother: "Pets (barking, etc.)", noise_children_playing_bother: "Children Playing", noise_parties: "Parties/Gatherings", noise_outdoor_equip: "Outdoor Equipment", noise_other_bother: "Other",
+                placeholder_other_bothering_noise: "Specify other noises...",
+                label_willingness_adjust_timing: "How willing are you to adjust timing of noisy activities if a neighbor requests?",
+                willingness_not: "Not Willing", willingness_neutral: "Neutral", willingness_very: "Very Willing",
+                label_approach_preference: "Preferred way to be approached about a noise concern you might be causing?",
+                approach_direct: "Direct Chat", approach_anonymous: "Anonymous Note", approach_hoa: "Via Mgmt/HOA",
+                button_save_quiet_profile: "Save Quiet Preferences",
+                title_profile_noise: "Your Preferences for Making Noise",
+                subtitle_profile_noise: "Share information about your household's typical sounds. This helps in finding a balance with your neighbors. All data is handled with care.",
+                accordion_sound_output_title: "🏡 Your Household's Sound Output",
+                label_household_noises: "Primary sources of noise from your household?",
+                noise_tv_music_own: "TV/Music", noise_instruments_own: "Instruments", noise_children_own: "Children Playing", noise_pets_own: "Pets", noise_hobbies_own: "Hobbies (DIY, etc.)", noise_gatherings_own: "Gatherings", noise_appliances_own: "Appliances", noise_exercise_own: "Exercise Equip.", noise_other_own: "Other",
+                accordion_management_title: "🛠️ Sound Management Measures",
+                label_management_steps: "Steps you currently take to minimize your noise?",
+                manage_soundproofing: "Soundproofing", manage_scheduling: "Scheduling", manage_headphones: "Headphones", manage_pet_training: "Pet Training", manage_rugs: "Rugs/Curtains", manage_other: "Other",
+                label_willingness_sound_dampening: "How willing are you to invest in sound-dampening (e.g., rugs, panels) for your own noise?",
+                label_unavoidable_noises: "Are there noises you make that you believe are unavoidable? Please explain.",
+                placeholder_unavoidable_noises: "e.g., Baby crying, essential medical equipment",
+                button_save_noise_profile: "Save Noise Output Preferences",
+                title_harmonize: "Harmonize With Your Neighbors",
+                subtitle_harmonize: "See common neighborhood sound goals and indicate your willingness to adapt. Your responses help build a more considerate community soundscape.",
+                harmony_score_title: "Your Community Harmony Score",
+                harmony_score_desc: "This score reflects how well your current sound habits align with community preferences. Increase it by signaling your willingness to adapt!",
+                common_goals_title: "Common Neighborhood Soundscape Goals:",
+                goal_late_music_title: "Late Night Music (after 10 PM)",
+                goal_late_music_desc: "Many neighbors have expressed a need for quiet after 10 PM, especially on weekdays, to ensure restful sleep.",
+                goal_contribute_harmony: "How can you contribute to harmony?",
+                button_can_adjust: "✅ I can adjust (e.g., use headphones, lower volume)",
+                button_partial_explain: "🤔 Partial / Explain",
+                placeholder_explain_situation: "Explain your situation or partial adjustment (shared anonymously)",
+                goal_pet_noise_title: "Daytime Pet Noise (e.g., barking 1-3 PM)",
+                goal_pet_noise_desc: "Some residents work from home or have young children napping between 1 PM - 3 PM and are sensitive to prolonged pet noise.",
+                button_bark_reduction: "✅ I'll try bark-reduction / manage pet",
+                placeholder_explain_pet: "Explain your situation (e.g., new puppy training) (shared anonymously)",
+                goal_diy_title: "Early Morning DIY (before 9 AM weekends)",
+                goal_diy_desc: "Weekend mornings are valued for rest. Loud DIY or power tool usage before 9 AM can be disruptive.",
+                button_schedule_diy: "✅ I can schedule DIY later",
+                placeholder_explain_diy: "Explain your situation (e.g., urgent repair) (shared anonymously)",
+                anon_explanation_note: "Your anonymous explanations help neighbors understand different perspectives and foster empathy.",
+                title_complaints: "Report a Sound Concern",
+                subtitle_complaints: "If you're experiencing a noise issue, you can log it here. Your report can be anonymous and helps in addressing concerns constructively.",
+                label_complaint_desc: "Describe the concern (What, When, How often?)",
+                placeholder_complaint_desc: "e.g., Loud parties every Friday night until 3 AM from Apt 3B, with bass shaking walls.",
+                label_complaint_source: "Source of the noise (Optional, if known)",
+                placeholder_complaint_source: "e.g., Apt 3B, House #12 (blue fence)",
+                label_contact_attempt: "Have you tried to communicate with them directly?",
+                contact_yes: "Yes", contact_no: "No", contact_hesitant: "I'm hesitant",
+                label_support_needed: "What kind of support or outcome are you seeking?",
+                support_anon_log: "Anonymous Log", support_info_mgmt: "Information for Mgmt", support_mediation_tips: "Mediation Tips", support_formal_complaint: "Formal Complaint Route",
+                button_submit_complaint: "Submit Concern Anonymously",
+                complaint_disclaimer: "Note: This platform facilitates communication and understanding. For urgent threats or illegal activities, please contact local authorities.",
+                button_ok: "OK",
+                modal_commitment_thanks: "Thanks for your commitment! Your harmony score increased by {points} points.",
+                modal_explanation_constructive: "Your anonymous explanation helps build understanding. Please be constructive.",
+                // Dynamic noise detail templates
+                noise_detail_tv_music_label: 'TV/Music Details', noise_detail_tv_music_placeholder: 'e.g., Evenings, moderate volume',
+                noise_detail_instruments_label: 'Musical Instruments Details', noise_detail_instruments_placeholder: 'e.g., Guitar, 6-8 PM weekdays',
+                noise_detail_children_label: 'Children Playing Details', noise_detail_children_placeholder: 'e.g., Afternoons, indoor/outdoor',
+                noise_detail_pets_label: 'Pet Noise Details', noise_detail_pets_placeholder: 'e.g., Dog barks when mail arrives',
+                noise_detail_hobbies_label: 'Hobbies/DIY Details', noise_detail_hobbies_placeholder: 'e.g., Woodworking, Sat 10am-2pm',
+                noise_detail_gatherings_label: 'Gatherings Details', noise_detail_gatherings_placeholder: 'e.g., Monthly, ends by 11 PM',
+                noise_detail_appliances_label: 'Appliance Noise Details', noise_detail_appliances_placeholder: 'e.g., Washing machine, daytime runs',
+                noise_detail_exercise_label: 'Exercise Equipment Details', noise_detail_exercise_placeholder: 'e.g., Treadmill, morning runs',
+                noise_detail_other_label: 'Other Household Noise Details', noise_detail_other_placeholder: 'Specify noise and typical times'
+            },
+            de: {
+                nav_pref_quiet: "Ruhepräferenzen",
+                nav_pref_noise: "Lärmpräferenzen",
+                nav_harmonize: "Harmonisieren",
+                nav_report: "Anliegen Melden",
+                title_profile_quiet: "Ihre Ruhepräferenzen",
+                subtitle_profile_quiet: "Helfen Sie uns, Ihre Bedürfnisse nach einer ruhigen Umgebung zu verstehen. Ihre Informationen werden vertraulich behandelt und zur Förderung eines besseren Verständnisses in der Nachbarschaft verwendet.",
+                accordion_sensitivity_title: "🔊 Ihre Lärmempfindlichkeit",
+                label_noise_sensitivity: "Wie würden Sie Ihre allgemeine Lärmempfindlichkeit beschreiben?",
+                sensitivity_very_low: "Sehr Gering", sensitivity_low: "Gering", sensitivity_medium: "Mittel", sensitivity_high: "Hoch", sensitivity_very_high: "Sehr Hoch",
+                label_sensitivity_time: "Zu welcher Tageszeit sind Sie am lärmempfindlichsten?",
+                time_morning: "Morgens", time_afternoon: "Nachmittags", time_evening: "Abends", time_night: "Nachts",
+                label_critical_quiet_times: "Welche bestimmten Zeiten sind für Ihre Ruhe entscheidend?",
+                placeholder_critical_quiet_times: "z.B. Mo 10-12 Uhr für Meetings",
+                label_critical_days: "Welche Tage sind für Ruhe am wichtigsten?",
+                days_weekdays: "Wochentage", days_weekends: "Wochenenden", days_specific: "Bestimmte Tage (unten angeben)",
+                placeholder_specific_days: "z.B. Sonntags",
+                label_bothering_noises: "Welche Arten von Lärm von Nachbarn stören Sie am meisten?",
+                noise_loud_music: "Laute Musik/Fernseher", noise_talking_shouting: "Reden/Schreien", noise_footsteps: "Schritte/Aufprall", noise_construction: "Bau/Heimwerken", noise_pets_bother: "Haustiere (Bellen, etc.)", noise_children_playing_bother: "Spielende Kinder", noise_parties: "Partys/Versammlungen", noise_outdoor_equip: "Außengeräte", noise_other_bother: "Andere",
+                placeholder_other_bothering_noise: "Andere Geräusche angeben...",
+                label_willingness_adjust_timing: "Wie bereit sind Sie, die Zeiten lauter Aktivitäten anzupassen, wenn ein Nachbar darum bittet?",
+                willingness_not: "Nicht Bereit", willingness_neutral: "Neutral", willingness_very: "Sehr Bereit",
+                label_approach_preference: "Bevorzugte Art, auf ein Lärmproblem angesprochen zu werden, das Sie möglicherweise verursachen?",
+                approach_direct: "Direktes Gespräch", approach_anonymous: "Anonyme Notiz", approach_hoa: "Über Verwaltung/WEG",
+                button_save_quiet_profile: "Ruhepräferenzen speichern",
+                title_profile_noise: "Ihre Präferenzen zur Lärmentwicklung",
+                subtitle_profile_noise: "Teilen Sie Informationen über die typischen Geräusche Ihres Haushalts. Dies hilft, ein Gleichgewicht mit Ihren Nachbarn zu finden. Alle Daten werden sorgfältig behandelt.",
+                accordion_sound_output_title: "🏡 Geräuschentwicklung Ihres Haushalts",
+                label_household_noises: "Hauptlärmquellen aus Ihrem Haushalt?",
+                noise_tv_music_own: "Fernseher/Musik", noise_instruments_own: "Instrumente", noise_children_own: "Spielende Kinder", noise_pets_own: "Haustiere", noise_hobbies_own: "Hobbys (Heimwerken, etc.)", noise_gatherings_own: "Versammlungen", noise_appliances_own: "Haushaltsgeräte", noise_exercise_own: "Fitnessgeräte", noise_other_own: "Andere",
+                accordion_management_title: "🛠️ Schallschutzmaßnahmen",
+                label_management_steps: "Welche Maßnahmen ergreifen Sie derzeit, um Ihren Lärm zu minimieren?",
+                manage_soundproofing: "Schalldämmung", manage_scheduling: "Zeitplanung", manage_headphones: "Kopfhörer", manage_pet_training: "Haustiertraining", manage_rugs: "Teppiche/Vorhänge", manage_other: "Andere",
+                label_willingness_sound_dampening: "Wie bereit sind Sie, in Schalldämpfung (z.B. Teppiche, Paneele) für Ihren eigenen Lärm zu investieren?",
+                label_unavoidable_noises: "Gibt es Geräusche, die Sie machen und die Sie für unvermeidbar halten? Bitte erklären Sie.",
+                placeholder_unavoidable_noises: "z.B. Babygeschrei, notwendige medizinische Geräte",
+                button_save_noise_profile: "Lärmpräferenzen speichern",
+                title_harmonize: "Harmonisieren Sie mit Ihren Nachbarn",
+                subtitle_harmonize: "Sehen Sie sich gemeinsame Ziele der Nachbarschaft an und signalisieren Sie Ihre Bereitschaft zur Anpassung. Ihre Antworten helfen, eine rücksichtsvollere Klanglandschaft in der Gemeinschaft zu schaffen.",
+                harmony_score_title: "Ihr Gemeinschafts-Harmonie-Wert",
+                harmony_score_desc: "Dieser Wert spiegelt wider, wie gut Ihre aktuellen Lärmgewohnheiten mit den Präferenzen der Gemeinschaft übereinstimmen. Erhöhen Sie ihn, indem Sie Ihre Anpassungsbereitschaft signalisieren!",
+                common_goals_title: "Gemeinsame Ziele der Nachbarschafts-Klanglandschaft:",
+                goal_late_music_title: "Nächtliche Musik (nach 22 Uhr)",
+                goal_late_music_desc: "Viele Nachbarn haben den Wunsch nach Ruhe nach 22 Uhr geäußert, besonders an Wochentagen, um einen erholsamen Schlaf zu gewährleisten.",
+                goal_contribute_harmony: "Wie können Sie zur Harmonie beitragen?",
+                button_can_adjust: "✅ Ich kann anpassen (z.B. Kopfhörer, leiser)",
+                button_partial_explain: "🤔 Teilweise / Erklären",
+                placeholder_explain_situation: "Erklären Sie Ihre Situation oder teilweise Anpassung (anonym geteilt)",
+                goal_pet_noise_title: "Haustierlärm tagsüber (z.B. Bellen 13-15 Uhr)",
+                goal_pet_noise_desc: "Einige Anwohner arbeiten von zu Hause oder haben kleine Kinder, die zwischen 13 und 15 Uhr schlafen und empfindlich auf anhaltenden Tierlärm reagieren.",
+                button_bark_reduction: "✅ Ich versuche Bell-Reduktion / Tier-Management",
+                placeholder_explain_pet: "Erklären Sie Ihre Situation (z.B. Welpentraining) (anonym geteilt)",
+                goal_diy_title: "Frühmorgendliche Heimwerkerprojekte (vor 9 Uhr am Wochenende)",
+                goal_diy_desc: "Wochenendmorgen werden zur Erholung geschätzt. Laute Heimwerker- oder Elektrowerkzeugnutzung vor 9 Uhr kann störend sein.",
+                button_schedule_diy: "✅ Ich kann Heimwerken später planen",
+                placeholder_explain_diy: "Erklären Sie Ihre Situation (z.B. dringende Reparatur) (anonym geteilt)",
+                anon_explanation_note: "Ihre anonymen Erklärungen helfen den Nachbarn, unterschiedliche Perspektiven zu verstehen und Empathie zu fördern.",
+                title_complaints: "Lärmproblem Melden",
+                subtitle_complaints: "Wenn Sie ein Lärmproblem haben, können Sie es hier protokollieren. Ihre Meldung kann anonym erfolgen und hilft, Anliegen konstruktiv anzugehen.",
+                label_complaint_desc: "Beschreiben Sie das Problem (Was, Wann, Wie oft?)",
+                placeholder_complaint_desc: "z.B. Laute Partys jeden Freitagabend bis 3 Uhr aus Wohnung 3B, Bass lässt Wände wackeln.",
+                label_complaint_source: "Lärmquelle (Optional, falls bekannt)",
+                placeholder_complaint_source: "z.B. Whg 3B, Haus Nr. 12 (blauer Zaun)",
+                label_contact_attempt: "Haben Sie versucht, direkt mit ihnen zu kommunizieren?",
+                contact_yes: "Ja", contact_no: "Nein", contact_hesitant: "Ich zögere",
+                label_support_needed: "Welche Art von Unterstützung oder Ergebnis wünschen Sie?",
+                support_anon_log: "Anonymes Protokoll", support_info_mgmt: "Info für Verwaltung", support_mediation_tips: "Mediationstipps", support_formal_complaint: "Formeller Beschwerdeweg",
+                button_submit_complaint: "Anliegen Anonym Einreichen",
+                complaint_disclaimer: "Hinweis: Diese Plattform erleichtert Kommunikation und Verständnis. Bei dringenden Bedrohungen oder illegalen Aktivitäten wenden Sie sich bitte an die örtlichen Behörden.",
+                button_ok: "OK",
+                modal_commitment_thanks: "Danke für Ihr Engagement! Ihr Harmonie-Wert ist um {points} Punkte gestiegen.",
+                modal_explanation_constructive: "Ihre anonyme Erklärung hilft, Verständnis aufzubauen. Bitte seien Sie konstruktiv.",
+                // Dynamic noise detail templates - German
+                noise_detail_tv_music_label: 'Details zu Fernseher/Musik', noise_detail_tv_music_placeholder: 'z.B. Abends, mittlere Lautstärke',
+                noise_detail_instruments_label: 'Details zu Musikinstrumenten', noise_detail_instruments_placeholder: 'z.B. Gitarre, Mo-Fr 18-20 Uhr',
+                noise_detail_children_label: 'Details zu spielenden Kindern', noise_detail_children_placeholder: 'z.B. Nachmittags, drinnen/draußen',
+                noise_detail_pets_label: 'Details zu Haustierlärm', noise_detail_pets_placeholder: 'z.B. Hund bellt, wenn Post kommt',
+                noise_detail_hobbies_label: 'Details zu Hobbys/Heimwerken', noise_detail_hobbies_placeholder: 'z.B. Holzarbeiten, Sa 10-14 Uhr',
+                noise_detail_gatherings_label: 'Details zu Versammlungen', noise_detail_gatherings_placeholder: 'z.B. Monatlich, endet um 23 Uhr',
+                noise_detail_appliances_label: 'Details zu Gerätelärm', noise_detail_appliances_placeholder: 'z.B. Waschmaschine, läuft tagsüber',
+                noise_detail_exercise_label: 'Details zu Fitnessgeräten', noise_detail_exercise_placeholder: 'z.B. Laufband, morgens',
+                noise_detail_other_label: 'Details zu sonstigem Haushaltslärm', noise_detail_other_placeholder: 'Lärm und typische Zeiten angeben'
+            }
+        };
+        
+        const noiseDetailTemplates = { // Keys match checkbox values
+            'tv-music': { labelKey: 'noise_detail_tv_music_label', placeholderKey: 'noise_detail_tv_music_placeholder' },
+            'instruments': { labelKey: 'noise_detail_instruments_label', placeholderKey: 'noise_detail_instruments_placeholder' },
+            'children': { labelKey: 'noise_detail_children_label', placeholderKey: 'noise_detail_children_placeholder' },
+            'pets': { labelKey: 'noise_detail_pets_label', placeholderKey: 'noise_detail_pets_placeholder' },
+            'hobbies': { labelKey: 'noise_detail_hobbies_label', placeholderKey: 'noise_detail_hobbies_placeholder' },
+            'gatherings': { labelKey: 'noise_detail_gatherings_label', placeholderKey: 'noise_detail_gatherings_placeholder' },
+            'appliances': { labelKey: 'noise_detail_appliances_label', placeholderKey: 'noise_detail_appliances_placeholder' },
+            'exercise': { labelKey: 'noise_detail_exercise_label', placeholderKey: 'noise_detail_exercise_placeholder' },
+            'other': { labelKey: 'noise_detail_other_label', placeholderKey: 'noise_detail_other_placeholder' }
+        };
+
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.getAttribute('data-translate-key');
+                const translation = translations[currentLang][key];
+                if (translation) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        if (el.placeholder) el.placeholder = translation;
+                    } else {
+                        el.textContent = translation;
+                    }
+                }
+            });
+            // Update dynamic content like household noise details if they are visible
+            updateHouseholdNoiseDetails();
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('noiseNormLang', lang);
+            document.documentElement.lang = lang; // Set html lang attribute
+            applyTranslations();
+            // Highlight active language button
+            document.getElementById('langToggleEn').classList.toggle('ring-2', lang === 'en');
+            document.getElementById('langToggleEn').classList.toggle('ring-blue-500', lang === 'en');
+            document.getElementById('langToggleDe').classList.toggle('ring-2', lang === 'de');
+            document.getElementById('langToggleDe').classList.toggle('ring-blue-500', lang === 'de');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('noiseNormTheme', theme);
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode'); // Ensure dark is removed if it was there
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else { // dark or system default
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode'); // Add dark mode if not light
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+        
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        document.getElementById('langToggleEn').addEventListener('click', () => setLanguage('en'));
+        document.getElementById('langToggleDe').addEventListener('click', () => setLanguage('de'));
+
 
         function showSection(id, navLink) {
-            document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('active');
+
 
             document.querySelectorAll('nav a').forEach(link => link.classList.remove('active-nav'));
             if (navLink) {
@@ -396,14 +745,9 @@
             const content = document.getElementById(accordionId);
             const icon = content.previousElementSibling.querySelector('.accordion-icon');
             content.classList.toggle('hidden');
-            if (content.classList.contains('hidden')) {
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                icon.style.transform = 'rotate(180deg)';
-            }
+            icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
-        // Show/hide specific day input
         const criticalDaysCheckboxes = document.querySelectorAll('input[name="critical-days"]');
         const specificCriticalDaysInput = document.getElementById('specific-critical-days');
         criticalDaysCheckboxes.forEach(checkbox => {
@@ -416,13 +760,11 @@
             });
         });
         
-        // Show/hide other bothering noise textarea
         const botheringNoisesCheckboxes = document.querySelectorAll('input[name="bothering-noises"]');
         const otherBotheringNoiseTextarea = document.getElementById('other-bothering-noise');
         botheringNoisesCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                 // Check if the "Other" checkbox specifically is checked
-                const otherCheckbox = Array.from(botheringNoisesCheckboxes).find(cb => cb.nextElementSibling.textContent.trim() === 'Other');
+                const otherCheckbox = Array.from(botheringNoisesCheckboxes).find(cb => cb.nextElementSibling.getAttribute('data-translate-key') === 'noise_other_bother' || cb.nextElementSibling.textContent.trim() === 'Other');
                 if (otherCheckbox && otherCheckbox.checked) {
                     otherBotheringNoiseTextarea.classList.remove('hidden');
                 } else {
@@ -431,21 +773,8 @@
             });
         });
 
-
-        // Dynamic household noise details
         const householdNoisesCheckboxes = document.querySelectorAll('input[name="household-noises"]');
         const householdNoiseDetailsContainer = document.getElementById('household-noise-details');
-        const noiseDetailTemplates = {
-            'tv-music': { label: 'TV/Music Details', placeholder: 'e.g., Evenings, moderate volume' },
-            'instruments': { label: 'Musical Instruments Details', placeholder: 'e.g., Guitar, 6-8 PM weekdays' },
-            'children': { label: 'Children Playing Details', placeholder: 'e.g., Afternoons, indoor/outdoor' },
-            'pets': { label: 'Pet Noise Details', placeholder: 'e.g., Dog barks when mail arrives' },
-            'hobbies': { label: 'Hobbies/DIY Details', placeholder: 'e.g., Woodworking, Sat 10am-2pm' },
-            'gatherings': { label: 'Gatherings Details', placeholder: 'e.g., Monthly, ends by 11 PM' },
-            'appliances': { label: 'Appliance Noise Details', placeholder: 'e.g., Washing machine, daytime runs' },
-            'exercise': { label: 'Exercise Equipment Details', placeholder: 'e.g., Treadmill, morning runs' },
-            'other': { label: 'Other Household Noise Details', placeholder: 'Specify noise and typical times' }
-        };
 
         householdNoisesCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
@@ -454,31 +783,32 @@
         });
 
         function updateHouseholdNoiseDetails() {
-            householdNoiseDetailsContainer.innerHTML = ''; // Clear current details
+            householdNoiseDetailsContainer.innerHTML = ''; 
             let hasDetails = false;
             householdNoisesCheckboxes.forEach(checkbox => {
                 if (checkbox.checked) {
                     hasDetails = true;
-                    const template = noiseDetailTemplates[checkbox.value];
-                    if (template) {
+                    const noiseType = checkbox.value;
+                    const templateInfo = noiseDetailTemplates[noiseType];
+                    if (templateInfo) {
+                        const labelText = translations[currentLang][templateInfo.labelKey] || `Details for ${noiseType}`;
+                        const placeholderText = translations[currentLang][templateInfo.placeholderKey] || `Describe ${noiseType}...`;
+
                         const detailDiv = document.createElement('div');
-                        detailDiv.className = 'p-3 bg-gray-700 rounded-md border border-gray-600';
+                        detailDiv.className = 'p-3 bg-gray-700 rounded-md border border-gray-600'; // These classes might need theme variables
                         detailDiv.innerHTML = `
-                            <label for="detail-${checkbox.value}" class="block text-sm font-medium text-gray-300 mb-1">${template.label}:</label>
-                            <textarea id="detail-${checkbox.value}" rows="2" placeholder="${template.placeholder}" class="w-full p-2 rounded-md bg-gray-800 border-gray-600"></textarea>
-                        `;
+                            <label for="detail-${noiseType}" class="block text-sm font-medium text-gray-300 mb-1">${labelText}:</label>
+                            <textarea id="detail-${noiseType}" rows="2" placeholder="${placeholderText}" class="w-full p-2 rounded-md bg-gray-800 border-gray-600"></textarea>
+                        `; // These classes might need theme variables
                         householdNoiseDetailsContainer.appendChild(detailDiv);
                     }
                 }
             });
-             if(hasDetails) householdNoiseDetailsContainer.classList.remove('hidden'); else householdNoiseDetailsContainer.classList.add('hidden');
+            if(hasDetails) householdNoiseDetailsContainer.classList.remove('hidden'); else householdNoiseDetailsContainer.classList.add('hidden');
         }
-        updateHouseholdNoiseDetails(); // Initial call
+        
 
-
-        // Harmonize Page Logic
         function updateHarmony(points, buttonElement) {
-            // Prevent multiple clicks on the same positive action
             if (buttonElement.classList.contains('opacity-50')) return;
 
             currentHarmonyScore = Math.min(100, Math.max(0, currentHarmonyScore + points));
@@ -486,18 +816,15 @@
             meterBar.style.width = currentHarmonyScore + '%';
             meterBar.textContent = currentHarmonyScore + '%';
 
-            // If it's a positive contribution, disable further clicks on this specific positive button
             if (points > 0 && buttonElement.classList.contains('primary-button')) {
-                 // Disable both buttons in the group to prevent toggling back and forth easily
                 const parentDiv = buttonElement.parentElement;
                 parentDiv.querySelectorAll('button').forEach(btn => {
                     btn.classList.add('opacity-50', 'cursor-not-allowed');
                     btn.disabled = true;
                 });
-                 buttonElement.classList.remove('opacity-50', 'cursor-not-allowed'); // Re-enable the clicked one slightly
-                 buttonElement.disabled = false;
-                 // Show a message
-                 showModalMessage(`Thanks for your commitment! Your harmony score increased by ${points} points.`);
+                buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                buttonElement.disabled = false;
+                showModalMessage(translations[currentLang]['modal_commitment_thanks'].replace('{points}', points));
             }
         }
 
@@ -506,11 +833,10 @@
             textarea.classList.toggle('hidden');
             if (!textarea.classList.contains('hidden')) {
                 textarea.focus();
-                 showModalMessage("Your anonymous explanation helps build understanding. Please be constructive.");
+                showModalMessage(translations[currentLang]['modal_explanation_constructive']);
             }
         }
 
-        // Modal Logic
         const messageModal = document.getElementById('messageModal');
         const modalMessageText = document.getElementById('modalMessageText');
 
@@ -523,18 +849,22 @@
             messageModal.classList.add('hidden');
         }
 
-
         // Initial setup
-        showSection('profile', document.querySelector('nav a')); // Show profile by default
-        // Initialize accordion icons correctly
-        document.querySelectorAll('.accordion-content').forEach(content => {
-            const icon = content.previousElementSibling.querySelector('.accordion-icon');
-            if (content.classList.contains('hidden')) {
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                icon.style.transform = 'rotate(180deg)';
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            setTheme(currentTheme); // Apply saved or default theme
+            setLanguage(currentLang); // Apply saved or default language
+            
+            // Default to "Preferences for Quiet"
+            showSection('profileQuiet', document.querySelector('nav a[onclick*="profileQuiet"]')); 
+            
+            // Initialize accordion icons correctly
+            document.querySelectorAll('.accordion-content').forEach(content => {
+                const icon = content.previousElementSibling.querySelector('.accordion-icon');
+                icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+            updateHouseholdNoiseDetails(); // Initial call to set up dynamic fields if any checkboxes are pre-checked (none in this setup)
         });
+
     </script>
 </body>
 </html>
