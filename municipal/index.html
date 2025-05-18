@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-translate-key="app_title">Municipal Noise Normulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f4f6f9; /* Lighter default for municipal UI */
+            --text-color: #1a202c;
+            --text-color-muted: #4a5568;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --nav-bg: #2c3e50; /* Professional dark blue for nav */
+            --nav-text-color: #ecf0f1;
+            --nav-active-bg: #34495e;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e0;
+            --input-focus-border: #3498db; /* Primary action blue */
+            --button-primary-bg: #3498db;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #2980b9;
+            --button-secondary-bg: #e0e0e0;
+            --button-secondary-text: #333333;
+            --button-secondary-hover-bg: #cccccc;
+            --table-header-bg: #e9edf2;
+            --table-row-hover-bg: #f9fafb;
+            --icon-color: #3498db;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #2ecc71;
+            --info-color: #3498db;
+            /* Chart colors */
+            --chart-bar-bg: var(--info-color);
+            --chart-label-color: var(--text-color-muted);
+            --chart-grid-color: var(--card-border);
+        }
+
+        .dark-mode {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --text-color-muted: #a0aec0;
+            --card-bg: #2d3748;
+            --card-border: #4a5568;
+            --nav-bg: #1e2a38;
+            --nav-text-color: #e2e8f0;
+            --nav-active-bg: #2d3748;
+            --input-bg: #2d3748;
+            --input-border: #4a5568;
+            --input-focus-border: #5dade2;
+            --button-primary-bg: #5dade2;
+            --button-primary-text: #1a202c;
+            --button-primary-hover-bg: #85c1e9;
+            --button-secondary-bg: #4a5568;
+            --button-secondary-text: #e2e8f0;
+            --button-secondary-hover-bg: #718096;
+            --table-header-bg: #374151; 
+            --table-row-hover-bg: #3e4c5f;
+            --icon-color: #5dade2;
+            --danger-color: #f1948a;
+            --warning-color: #f8c471;
+            --success-color: #76d7c4;
+            --info-color: #85c1e9;
+            /* Chart colors dark mode */
+            --chart-bar-bg: var(--info-color);
+            --chart-label-color: var(--text-color-muted);
+            --chart-grid-color: var(--card-border);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .main-content {
+            padding-left: 260px; 
+            transition: padding-left 0.3s ease;
+        }
+        .sidebar-collapsed .main-content {
+            padding-left: 80px; 
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--nav-bg);
+            color: var(--nav-text-color);
+            transition: width 0.3s ease;
+        }
+        .sidebar-collapsed .sidebar {
+            width: 80px;
+        }
+        .sidebar-link {
+            color: var(--nav-text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .sidebar-link:hover, .sidebar-link.active-nav {
+            background-color: var(--nav-active-bg);
+            color: #ffffff; 
+        }
+        .sidebar-link .link-text {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+        .sidebar-collapsed .sidebar-link .link-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        .sidebar-collapsed .sidebar-link i {
+            margin-right: 0 !important; 
+        }
+        .top-bar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-color);
+            height: 65px; 
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .section-title {
+            font-size: 1.875rem; 
+            font-weight: 600; 
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        .section-subtitle {
+            font-size: 0.875rem; 
+            color: var(--text-color-muted);
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            border-left: 4px solid var(--info-color);
+        }
+        .stat-card .stat-value { color: var(--info-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+        .stat-card.danger .stat-value { color: var(--danger-color); }
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.success .stat-value { color: var(--success-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.warning .stat-value { color: var(--warning-color); }
+
+        #map { height: 500px; border-radius: 0.5rem; border: 1px solid var(--card-border); }
+        .leaflet-popup-content-wrapper { background-color: var(--card-bg); color: var(--text-color); border-radius: 0.375rem;}
+        .leaflet-popup-content { font-size: 0.875rem; }
+        .leaflet-popup-tip { background-color: var(--card-bg); }
+
+        table thead th {
+            background-color: var(--table-header-bg);
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        table tbody tr:hover {
+            background-color: var(--table-row-hover-bg);
+        }
+        .theme-toggle-button, .lang-toggle-button {
+            background-color: transparent;
+            color: var(--text-color-muted);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .theme-toggle-button:hover, .lang-toggle-button:hover {
+            background-color: var(--bg-color); 
+            border-color: var(--input-focus-border);
+        }
+        .modal-content-area {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        .badge {
+            padding: 0.25em 0.6em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.375rem;
+        }
+        .badge-danger { background-color: var(--danger-color); color: white; }
+        .badge-warning { background-color: var(--warning-color); color: #333; }
+        .badge-success { background-color: var(--success-color); color: white; }
+        .badge-info { background-color: var(--info-color); color: white; }
+        .badge-neutral { background-color: var(--text-color-muted); color: var(--bg-color); }
+
+        .legend {
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            color: var(--text-color);
+        }
+        .legend h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+            border-radius: 50%;
+        }
+        .legend span {
+            font-size: 0.8em;
+        }
+        /* Simple Bar Chart Styles */
+        .bar-chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;
+            border: 1px solid var(--chart-grid-color);
+            border-radius: 0.375rem; /* rounded-md */
+            height: 300px; /* Or adjust as needed */
+            justify-content: flex-end; /* Bars grow from bottom */
+        }
+        .bar-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end; /* Align bars to bottom */
+            height: 100%;
+            gap: 2%; /* Space between bars */
+            border-bottom: 1px solid var(--chart-grid-color);
+            position: relative;
+        }
+        .bar-chart .bar {
+            background-color: var(--chart-bar-bg);
+            width: 15%; /* Adjust for number of bars */
+            border-radius: 4px 4px 0 0; /* Rounded top corners */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* Percentage at the top of the bar */
+            transition: height 0.5s ease-out;
+        }
+        .bar-chart .bar .bar-percentage {
+            position: absolute;
+            top: -20px; /* Position above the bar */
+            font-size: 0.75rem; /* text-xs */
+            color: var(--chart-label-color);
+            font-weight: 500;
+        }
+        .bar-chart .bar .bar-label {
+            margin-top: 5px; /* Space between bar and label */
+            font-size: 0.75rem; /* text-xs */
+            color: var(--chart-label-color);
+            text-align: center;
+            position: absolute;
+            bottom: -25px; /* Position below the bar */
+            width: 100%;
+        }
+         /* Grid lines for y-axis */
+        .bar-chart-y-axis {
+            position: absolute;
+            left: -30px; /* Position to the left of the chart */
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column-reverse; /* Labels from bottom up */
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--chart-label-color);
+        }
+        .bar-chart-y-axis span {
+            display: block;
+        }
+
+    </style>
+</head>
+<body class="text-sm">
+    <div id="app-container" class="flex h-screen">
+        <aside class="sidebar fixed top-0 left-0 h-full flex flex-col z-40 shadow-lg">
+            <div class="p-4 flex items-center justify-center h-[65px] border-b border-gray-700">
+                <i class="fas fa-cogs fa-2x mr-2 text-white"></i>
+                <span class="link-text text-xl font-semibold text-white" data-translate-key="sidebar_title">Municipal UI</span>
+            </div>
+            <nav class="flex-grow pt-4 space-y-1">
+                <a href="#" onclick="showSection('dashboard', this)" class="sidebar-link active-nav flex items-center py-3 px-6">
+                    <i class="fas fa-tachometer-alt fa-fw mr-3"></i><span class="link-text" data-translate-key="nav_dashboard">Dashboard</span>
+                </a>
+                <a href="#" onclick="showSection('mapView', this)" class="sidebar-link flex items-center py-3 px-6">
+                    <i class="fas fa-map-marked-alt fa-fw mr-3"></i><span class="link-text" data-translate-key="nav_map">Conflict & Harmony Map</span>
+                </a>
+                <a href="#" onclick="showSection('complaintLog', this)" class="sidebar-link flex items-center py-3 px-6">
+                    <i class="fas fa-list-alt fa-fw mr-3"></i><span class="link-text" data-translate-key="nav_complaints">Complaint Log</span>
+                </a>
+                <a href="#" onclick="showSection('communityInsights', this)" class="sidebar-link flex items-center py-3 px-6">
+                    <i class="fas fa-chart-pie fa-fw mr-3"></i><span class="link-text" data-translate-key="nav_insights">Community Insights</span>
+                </a>
+                 <a href="#" onclick="showSection('prosocialActivity', this)" class="sidebar-link flex items-center py-3 px-6">
+                    <i class="fas fa-hands-helping fa-fw mr-3"></i><span class="link-text" data-translate-key="nav_prosocial">Prosocial Activity</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-gray-700">
+                 <button id="sidebarToggle" class="w-full text-left text-gray-300 hover:text-white py-2 px-3 rounded-md">
+                    <i class="fas fa-exchange-alt mr-2"></i><span class="link-text" data-translate-key="nav_toggle_sidebar">Toggle Sidebar</span>
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content flex-1 flex flex-col overflow-y-auto">
+            <header class="top-bar sticky top-0 z-30 flex items-center justify-end px-6">
+                <div class="flex items-center space-x-3">
+                    <button id="themeToggle" class="theme-toggle-button">
+                        <i id="themeIconSun" class="fas fa-sun hidden"></i>
+                        <i id="themeIconMoon" class="fas fa-moon"></i>
+                    </button>
+                    <button id="langToggleEn" class="lang-toggle-button font-semibold">EN</button>
+                    <button id="langToggleDe" class="lang-toggle-button font-semibold">DE</button>
+                    <span class="text-sm font-medium" data-translate-key="user_greeting">Welcome, Admin</span>
+                    <i class="fas fa-user-circle fa-lg text-gray-500"></i>
+                </div>
+            </header>
+
+            <main class="flex-grow p-6 space-y-6">
+                <section id="dashboard" class="active space-y-6">
+                    <div>
+                        <h1 class="section-title" data-translate-key="dashboard_title">Noise Management Dashboard</h1>
+                        <p class="section-subtitle" data-translate-key="dashboard_subtitle">Overview of noise-related activities and community sentiment in your municipality.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="card p-5 stat-card success">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_active_users">Active Citizen App Users</p>
+                                    <p class="text-3xl font-bold stat-value">1,287</p>
+                                </div>
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div class="card p-5 stat-card danger">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_open_complaints">Open Complaints</p>
+                                    <p class="text-3xl font-bold stat-value">34</p>
+                                </div>
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div class="card p-5 stat-card warning">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_predicted_hotspots">Predicted Conflict Hotspots</p>
+                                    <p class="text-3xl font-bold stat-value">8</p>
+                                </div>
+                                <i class="fas fa-burn fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div class="card p-5 stat-card info">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_avg_harmony">Avg. Community Harmony</p>
+                                    <p class="text-3xl font-bold stat-value">78%</p>
+                                </div>
+                                <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 card p-5">
+                            <h3 class="text-lg font-semibold mb-3" data-translate-key="recent_activity_title">Recent Activity</h3>
+                            <ul class="space-y-3 text-xs">
+                                <li class="flex items-center"><i class="fas fa-comment-dots fa-fw mr-2 text-blue-500"></i> <span data-translate-key="activity_new_complaint_1">New complaint #C0192 regarding loud music in Neustadt.</span> <span class="ml-auto text-gray-400">10 min ago</span></li>
+                                <li class="flex items-center"><i class="fas fa-check-circle fa-fw mr-2 text-green-500"></i> <span data-translate-key="activity_resolved_complaint">Complaint #C0188 (dog barking) marked as resolved by user.</span> <span class="ml-auto text-gray-400">1 hr ago</span></li>
+                                <li class="flex items-center"><i class="fas fa-user-plus fa-fw mr-2 text-purple-500"></i> <span data-translate-key="activity_new_user">15 new users registered from Altstadt district.</span> <span class="ml-auto text-gray-400">3 hrs ago</span></li>
+                                <li class="flex items-center"><i class="fas fa-map-pin fa-fw mr-2 text-orange-500"></i> <span data-translate-key="activity_new_hotspot">Potential conflict hotspot identified near Schiller Park.</span> <span class="ml-auto text-gray-400">Yesterday</span></li>
+                            </ul>
+                        </div>
+                        <div class="card p-5">
+                            <h3 class="text-lg font-semibold mb-3" data-translate-key="quick_links_title">Quick Links</h3>
+                            <div class="space-y-2">
+                                <button onclick="showSection('mapView', document.querySelector('.sidebar-link[onclick*=\'mapView\']'))" class="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"><i class="fas fa-map fa-fw mr-2 text-blue-500"></i><span data-translate-key="link_view_map">View Full Map</span></button>
+                                <button onclick="showSection('complaintLog', document.querySelector('.sidebar-link[onclick*=\'complaintLog\']'))" class="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"><i class="fas fa-folder-open fa-fw mr-2 text-green-500"></i><span data-translate-key="link_manage_complaints">Manage Complaints</span></button>
+                                <button class="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"><i class="fas fa-cog fa-fw mr-2 text-gray-500"></i><span data-translate-key="link_system_settings">System Settings</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="mapView" class="hidden space-y-6">
+                    <div>
+                        <h1 class="section-title" data-translate-key="map_title">Conflict & Harmony Map</h1>
+                        <p class="section-subtitle" data-translate-key="map_subtitle">Visualize noise-related data across the municipality. Layers can be toggled to show different insights.</p>
+                    </div>
+                    <div class="card p-1">
+                        <div id="map"></div>
+                    </div>
+                    <div class="card p-4">
+                        <h3 class="text-md font-semibold mb-2" data-translate-key="map_disclaimer_title">Map Data Disclaimer</h3>
+                        <p class="text-xs text-gray-600 dark:text-gray-400" id="map_disclaimer_text" data-translate-key="map_disclaimer_content">
+                            Please Note: The town of Pouch, Muldestausee, has been chosen solely as a geographical example relevant to the state of Saxony-Anhalt, where the 'Nachbarschaftslärm' (Neighbor Noise) citizens' initiative and the concept for the Noise Normulator have been developed. All data presented on this map and throughout this municipal interface is entirely synthetic, generated by computer algorithms for demonstration purposes only. It does not reflect real conditions, citizen data, or actual noise-related incidents in Pouch or any other location.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="complaintLog" class="hidden space-y-6">
+                    <div>
+                        <h1 class="section-title" data-translate-key="complaints_title">Complaint Log</h1>
+                        <p class="section-subtitle" data-translate-key="complaints_subtitle">Track and manage noise complaints submitted by citizens. Filter and sort to prioritize actions.</p>
+                    </div>
+                    <div class="card p-5 overflow-x-auto">
+                        <div class="mb-4 flex space-x-2">
+                            <input type="text" id="complaintSearch" data-translate-key="placeholder_search_complaints" placeholder="Search by ID, type, location..." class="p-2 border rounded-md w-1/3 text-xs" style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);">
+                            <select id="complaintStatusFilter" class="p-2 border rounded-md text-xs" style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);">
+                                <option value="" data-translate-key="filter_all_statuses">All Statuses</option>
+                                <option value="Open" data-translate-key="status_open">Open</option>
+                                <option value="In Progress" data-translate-key="status_in_progress">In Progress</option>
+                                <option value="Resolved" data-translate-key="status_resolved">Resolved</option>
+                                <option value="Closed" data-translate-key="status_closed">Closed</option>
+                            </select>
+                            <button class="primary-button px-4 py-2 text-xs rounded-md" data-translate-key="button_apply_filters">Apply Filters</button>
+                        </div>
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_id">ID</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_date">Date</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_location">Approx. Location</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_type">Noise Type</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_severity">Severity</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_status">Status</th>
+                                    <th class="px-4 py-2 text-left" data-translate-key="col_actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaintTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                </tbody>
+                        </table>
+                         <div class="mt-4 flex justify-between items-center text-xs">
+                            <span id="complaintTableInfo" data-translate-key="table_showing_entries">Showing 1 to 5 of 20 entries</span>
+                            <div>
+                                <button class="secondary-button px-3 py-1 rounded-md" data-translate-key="button_previous">Previous</button>
+                                <button class="primary-button px-3 py-1 rounded-md ml-1" data-translate-key="button_next">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="communityInsights" class="hidden space-y-6">
+                     <div>
+                        <h1 class="section-title" data-translate-key="insights_title">Community Insights</h1>
+                        <p class="section-subtitle" data-translate-key="insights_subtitle">Aggregated and anonymized data providing insights into community noise preferences and trends.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="card p-5">
+                            <h3 class="text-lg font-semibold mb-3" data-translate-key="insights_sensitivity_dist">Noise Sensitivity Distribution</h3>
+                            <div class="bar-chart-container">
+                                <div class="bar-chart" id="sensitivityChart">
+                                    <div class="bar-chart-y-axis">
+                                        <span>100%</span>
+                                        <span>75%</span>
+                                        <span>50%</span>
+                                        <span>25%</span>
+                                        <span>0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card p-5">
+                            <h3 class="text-lg font-semibold mb-3" data-translate-key="insights_common_noises">Most Common Reported Noise Sources (by citizens about themselves)</h3>
+                             <ul class="list-disc list-inside text-xs space-y-1">
+                                <li data-translate-key="noise_source_music_tv">Music/TV: 35%</li>
+                                <li data-translate-key="noise_source_pets">Pets (barking, etc.): 25%</li>
+                                <li data-translate-key="noise_source_children">Children Playing: 15%</li>
+                                <li data-translate-key="noise_source_hobbies">Hobbies/DIY: 10%</li>
+                                <li data-translate-key="noise_source_gatherings">Gatherings/Parties: 10%</li>
+                                <li data-translate-key="noise_source_other_own">Other: 5%</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="card p-5">
+                        <h3 class="text-lg font-semibold mb-3" data-translate-key="insights_willingness_title">Willingness to Adjust (Self-Reported by Citizens)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="px-3 py-2 text-left" data-translate-key="col_activity_type">Activity Type</th>
+                                        <th class="px-3 py-2 text-left" data-translate-key="col_avg_willingness">Avg. Willingness (1-5)</th>
+                                        <th class="px-3 py-2 text-left" data-translate-key="col_num_respondents">No. of Respondents</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="px-3 py-2 border-b dark:border-gray-700" data-translate-key="activity_music_timing">Adjust Music Timing</td><td class="px-3 py-2 border-b dark:border-gray-700">3.8</td><td class="px-3 py-2 border-b dark:border-gray-700">850</td></tr>
+                                    <tr><td class="px-3 py-2 border-b dark:border-gray-700" data-translate-key="activity_pet_management">Manage Pet Noise</td><td class="px-3 py-2 border-b dark:border-gray-700">3.2</td><td class="px-3 py-2 border-b dark:border-gray-700">620</td></tr>
+                                    <tr><td class="px-3 py-2 border-b dark:border-gray-700" data-translate-key="activity_diy_scheduling">Schedule DIY Projects</td><td class="px-3 py-2 border-b dark:border-gray-700">4.1</td><td class="px-3 py-2 border-b dark:border-gray-700">450</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="prosocialActivity" class="hidden space-y-6">
+                    <div>
+                        <h1 class="section-title" data-translate-key="prosocial_title">Prosocial Activity & Harmonization Efforts</h1>
+                        <p class="section-subtitle" data-translate-key="prosocial_subtitle">Overview of positive interactions and efforts by citizens to harmonize with their neighbors.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="card p-5 stat-card success">
+                             <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_harmonization_actions">Harmonization Actions Logged</p>
+                                    <p class="text-3xl font-bold stat-value">452</p>
+                                </div>
+                                <i class="fas fa-hands-helping fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div class="card p-5 stat-card info">
+                             <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_successful_mediations">Reported Successful Mediations (User-to-User)</p>
+                                    <p class="text-3xl font-bold stat-value">89</p>
+                                </div>
+                                <i class="fas fa-comments fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div class="card p-5 stat-card warning">
+                             <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 uppercase" data-translate-key="stat_positive_feedback">Positive Feedback on Adjustments</p>
+                                    <p class="text-3xl font-bold stat-value">123</p>
+                                </div>
+                                <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-5">
+                        <h3 class="text-lg font-semibold mb-3" data-translate-key="prosocial_top_areas">Top Areas by Prosocial Engagement</h3>
+                        <ol class="list-decimal list-inside text-xs space-y-1">
+                            <li data-translate-key="area_neustadt">Neustadt District: 150 actions, Avg. Harmony Score: 85%</li>
+                            <li data-translate-key="area_altstadt">Altstadt Quarter: 120 actions, Avg. Harmony Score: 82%</li>
+                            <li data-translate-key="area_riverside">Riverside Community: 95 actions, Avg. Harmony Score: 79%</li>
+                        </ol>
+                        <p class="text-xs text-gray-500 mt-3" data-translate-key="prosocial_note">Engagement is measured by users actively logging adjustments or positive interactions via the citizen app.</p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="complaintModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content-area p-6 rounded-lg shadow-xl max-w-lg w-full text-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold" data-translate-key="modal_complaint_details_title">Complaint Details</h3>
+                <button onclick="closeModal('complaintModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+            <div id="complaintModalContent" class="space-y-3">
+                <p><strong>ID:</strong> <span id="modal_complaint_id"></span></p>
+                <p><strong>Date:</strong> <span id="modal_complaint_date"></span></p>
+                <p><strong>Location:</strong> <span id="modal_complaint_location"></span></p>
+                <p><strong>Type:</strong> <span id="modal_complaint_type"></span></p>
+                <p><strong>Severity:</strong> <span id="modal_complaint_severity"></span></p>
+                <p><strong>Description:</strong> <span id="modal_complaint_description"></span></p>
+                <p><strong>Status:</strong> <span id="modal_complaint_status_val"></span></p>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button onclick="closeModal('complaintModal')" class="secondary-button px-4 py-2 rounded-md text-xs" data-translate-key="button_close">Close</button>
+                <button class="primary-button px-4 py-2 rounded-md text-xs" data-translate-key="button_update_status">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('municipalNoiseLang') || 'en';
+        let currentTheme = localStorage.getItem('municipalNoiseTheme') || 'light'; 
+        let map;
+        let layers = {
+            predictedConflict: null,
+            actualConflict: null,
+            prosocialActivity: null
+        };
+
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                app_title: "Municipal Noise Normulator",
+                sidebar_title: "Municipal UI",
+                nav_dashboard: "Dashboard",
+                nav_map: "Conflict & Harmony Map",
+                nav_complaints: "Complaint Log",
+                nav_insights: "Community Insights",
+                nav_prosocial: "Prosocial Activity",
+                nav_toggle_sidebar: "Toggle Sidebar",
+                user_greeting: "Welcome, Admin",
+                dashboard_title: "Noise Management Dashboard",
+                dashboard_subtitle: "Overview of noise-related activities and community sentiment in your municipality.",
+                stat_active_users: "Active Citizen App Users",
+                stat_open_complaints: "Open Complaints",
+                stat_predicted_hotspots: "Predicted Conflict Hotspots",
+                stat_avg_harmony: "Avg. Community Harmony",
+                recent_activity_title: "Recent Activity",
+                activity_new_complaint_1: "New complaint #C0192 regarding loud music in Neustadt.",
+                activity_resolved_complaint: "Complaint #C0188 (dog barking) marked as resolved by user.",
+                activity_new_user: "15 new users registered from Altstadt district.",
+                activity_new_hotspot: "Potential conflict hotspot identified near Schiller Park.",
+                quick_links_title: "Quick Links",
+                link_view_map: "View Full Map",
+                link_manage_complaints: "Manage Complaints",
+                link_system_settings: "System Settings",
+                map_title: "Conflict & Harmony Map",
+                map_subtitle: "Visualize noise-related data across the municipality. Layers can be toggled to show different insights.",
+                map_disclaimer_title: "Map Data Disclaimer",
+                map_disclaimer_content: "Please Note: The town of Pouch, Muldestausee, has been chosen solely as a geographical example relevant to the state of Saxony-Anhalt... All data presented on this map... is entirely synthetic... It does not reflect real conditions... in Pouch or any other location.",
+                map_pred_conflict_detail_1: "High variance in quiet time preferences (Pouch - Main St).",
+                map_pred_conflict_detail_2: "Mixed tolerance for pet noise (Friedersdorf - Park Area).",
+                map_pred_conflict_detail_3: "Discrepancy in acceptable weekend activity hours (Schlaitz - Residential).",
+                map_actual_conflict_detail_1: "Loud Music Complaint (Pouch - Central).",
+                map_actual_conflict_detail_2: "Construction Noise Report (Gossa - Industrial Edge).",
+                map_actual_conflict_detail_3: "Recurring Pet Noise Issue (Mühlbeck - Lakeside).",
+                map_prosocial_detail_1: "Successful mediation via app (Friedersdorf).",
+                map_prosocial_detail_2: "Community agreement on quiet hours (Pouch - South).",
+                map_prosocial_detail_3: "Multiple users offered to adjust schedules (Krina).",
+                complaints_title: "Complaint Log",
+                complaints_subtitle: "Track and manage noise complaints submitted by citizens. Filter and sort to prioritize actions.",
+                placeholder_search_complaints: "Search by ID, type, location...",
+                filter_all_statuses: "All Statuses", status_open: "Open", status_in_progress: "In Progress", status_resolved: "Resolved", status_closed: "Closed",
+                button_apply_filters: "Apply Filters",
+                col_id: "ID", col_date: "Date", col_location: "Approx. Location", col_type: "Noise Type", col_severity: "Severity", col_status: "Status", col_actions: "Actions",
+                table_showing_entries: "Showing 1 to 5 of 20 entries",
+                button_previous: "Previous", button_next: "Next",
+                insights_title: "Community Insights",
+                insights_subtitle: "Aggregated and anonymized data providing insights into community noise preferences and trends.",
+                insights_sensitivity_dist: "Noise Sensitivity Distribution",
+                chart_label_very_low: "Very Low", chart_label_low: "Low", chart_label_medium: "Medium", chart_label_high: "High", chart_label_very_high: "Very High",
+                insights_common_noises: "Most Common Reported Noise Sources (by citizens about themselves)",
+                noise_source_music_tv: "Music/TV: 35%", noise_source_pets: "Pets (barking, etc.): 25%", noise_source_children: "Children Playing: 15%", noise_source_hobbies: "Hobbies/DIY: 10%", noise_source_gatherings: "Gatherings/Parties: 10%", noise_source_other_own: "Other: 5%",
+                insights_willingness_title: "Willingness to Adjust (Self-Reported by Citizens)",
+                col_activity_type: "Activity Type", col_avg_willingness: "Avg. Willingness (1-5)", col_num_respondents: "No. of Respondents",
+                activity_music_timing: "Adjust Music Timing", activity_pet_management: "Manage Pet Noise", activity_diy_scheduling: "Schedule DIY Projects",
+                prosocial_title: "Prosocial Activity & Harmonization Efforts",
+                prosocial_subtitle: "Overview of positive interactions and efforts by citizens to harmonize with their neighbors.",
+                stat_harmonization_actions: "Harmonization Actions Logged",
+                stat_successful_mediations: "Reported Successful Mediations (User-to-User)",
+                stat_positive_feedback: "Positive Feedback on Adjustments",
+                prosocial_top_areas: "Top Areas by Prosocial Engagement",
+                area_neustadt: "Neustadt District: 150 actions, Avg. Harmony Score: 85%", // Example, may not be a real district in Muldestausee
+                area_altstadt: "Altstadt Quarter: 120 actions, Avg. Harmony Score: 82%", // Example
+                area_riverside: "Riverside Community: 95 actions, Avg. Harmony Score: 79%", // Example
+                prosocial_note: "Engagement is measured by users actively logging adjustments or positive interactions via the citizen app.",
+                modal_complaint_details_title: "Complaint Details",
+                button_close: "Close", button_update_status: "Update Status",
+                legend_title: "Legend",
+                legend_pred_conflict: "Predicted Conflict",
+                legend_actual_conflict_low: "Actual Conflict (Low Sev.)",
+                legend_actual_conflict_med: "Actual Conflict (Med. Sev.)",
+                legend_actual_conflict_high: "Actual Conflict (High Sev.)",
+                legend_prosocial: "Prosocial Activity",
+                complaint_type_music: "Loud Music", complaint_type_construction: "Construction", complaint_type_pets: "Pet Noise", complaint_type_party: "Party", complaint_type_other: "Other",
+                severity_1: "1 (Low)", severity_2: "2", severity_3: "3 (Medium)", severity_4: "4", severity_5: "5 (High)",
+                action_view_details: "View Details"
+
+            },
+            de: {
+                app_title: "Kommunaler Lärm-Normulator",
+                sidebar_title: "Kommunal-UI",
+                nav_dashboard: "Dashboard",
+                nav_map: "Konflikt- & Harmoniekarte",
+                nav_complaints: "Beschwerdeprotokoll",
+                nav_insights: "Gemeinschaftseinblicke",
+                nav_prosocial: "Prosoziale Aktivität",
+                nav_toggle_sidebar: "Seitenleiste umschalten",
+                user_greeting: "Willkommen, Admin",
+                dashboard_title: "Lärmmanagement-Dashboard",
+                dashboard_subtitle: "Überblick über lärmbezogene Aktivitäten und die Stimmung in Ihrer Gemeinde.",
+                stat_active_users: "Aktive Bürger-App-Nutzer",
+                stat_open_complaints: "Offene Beschwerden",
+                stat_predicted_hotspots: "Vorhergesagte Konfliktherde",
+                stat_avg_harmony: "Ø Gemeinschaftsharmonie",
+                recent_activity_title: "Neueste Aktivitäten",
+                activity_new_complaint_1: "Neue Beschwerde #C0192 wegen lauter Musik in Neustadt.",
+                activity_resolved_complaint: "Beschwerde #C0188 (Hundegebell) vom Nutzer als gelöst markiert.",
+                activity_new_user: "15 neue Nutzer aus dem Bezirk Altstadt registriert.",
+                activity_new_hotspot: "Potenzieller Konfliktherd in der Nähe des Schillerparks identifiziert.",
+                quick_links_title: "Schnellzugriffe",
+                link_view_map: "Vollständige Karte anzeigen",
+                link_manage_complaints: "Beschwerden verwalten",
+                link_system_settings: "Systemeinstellungen",
+                map_title: "Konflikt- & Harmoniekarte",
+                map_subtitle: "Visualisieren Sie lärmbezogene Daten in der gesamten Gemeinde. Ebenen können umgeschaltet werden, um verschiedene Einblicke zu erhalten.",
+                map_disclaimer_title: "Haftungsausschluss Kartendaten",
+                map_disclaimer_content: "Bitte beachten Sie: Die Ortschaft Pouch, Muldestausee, wurde lediglich als geografisches Beispiel für das Bundesland Sachsen-Anhalt gewählt... Alle auf dieser Karte... dargestellten Daten sind vollständig synthetisch... Sie spiegeln keine realen Bedingungen... in Pouch oder an einem anderen Ort wider.",
+                map_pred_conflict_detail_1: "Hohe Varianz bei Ruhezeitpräferenzen (Pouch - Hauptstr.).",
+                map_pred_conflict_detail_2: "Gemischte Toleranz gegenüber Tierlärm (Friedersdorf - Parknähe).",
+                map_pred_conflict_detail_3: "Diskrepanz bei akzeptablen Wochenendaktivitätszeiten (Schlaitz - Wohngebiet).",
+                map_actual_conflict_detail_1: "Beschwerde Laute Musik (Pouch - Zentrum).",
+                map_actual_conflict_detail_2: "Baulärm-Meldung (Gossa - Industrierand).",
+                map_actual_conflict_detail_3: "Wiederkehrendes Tierlärmproblem (Mühlbeck - Seeufer).",
+                map_prosocial_detail_1: "Erfolgreiche Mediation via App (Friedersdorf).",
+                map_prosocial_detail_2: "Gemeinschaftliche Einigung Ruhezeiten (Pouch - Süd).",
+                map_prosocial_detail_3: "Mehrere Nutzer boten Zeitplananpassungen an (Krina).",
+                complaints_title: "Beschwerdeprotokoll",
+                complaints_subtitle: "Verfolgen und verwalten Sie von Bürgern eingereichte Lärmbeschwerden. Filtern und sortieren Sie, um Maßnahmen zu priorisieren.",
+                placeholder_search_complaints: "Suche nach ID, Typ, Ort...",
+                filter_all_statuses: "Alle Status", status_open: "Offen", status_in_progress: "In Bearbeitung", status_resolved: "Gelöst", status_closed: "Geschlossen",
+                button_apply_filters: "Filter anwenden",
+                col_id: "ID", col_date: "Datum", col_location: "Ungef. Ort", col_type: "Lärmart", col_severity: "Schweregrad", col_status: "Status", col_actions: "Aktionen",
+                table_showing_entries: "Zeige 1 bis 5 von 20 Einträgen",
+                button_previous: "Zurück", button_next: "Weiter",
+                insights_title: "Gemeinschaftseinblicke",
+                insights_subtitle: "Aggregierte und anonymisierte Daten, die Einblicke in Lärmpräferenzen und Trends der Gemeinschaft geben.",
+                insights_sensitivity_dist: "Verteilung der Lärmempfindlichkeit",
+                chart_label_very_low: "Sehr Gering", chart_label_low: "Gering", chart_label_medium: "Mittel", chart_label_high: "Hoch", chart_label_very_high: "Sehr Hoch",
+                insights_common_noises: "Häufigste gemeldete Lärmquellen (von Bürgern über sich selbst)",
+                noise_source_music_tv: "Musik/Fernseher: 35%", noise_source_pets: "Haustiere (Bellen etc.): 25%", noise_source_children: "Spielende Kinder: 15%", noise_source_hobbies: "Hobbys/Heimwerken: 10%", noise_source_gatherings: "Versammlungen/Partys: 10%", noise_source_other_own: "Sonstige: 5%",
+                insights_willingness_title: "Anpassungsbereitschaft (Selbstauskunft der Bürger)",
+                col_activity_type: "Aktivitätsart", col_avg_willingness: "Ø Bereitschaft (1-5)", col_num_respondents: "Anz. Befragte",
+                activity_music_timing: "Musikzeiten anpassen", activity_pet_management: "Tierlärm managen", activity_diy_scheduling: "Heimwerkerprojekte planen",
+                prosocial_title: "Prosoziale Aktivität & Harmonisierungsbemühungen",
+                prosocial_subtitle: "Überblick über positive Interaktionen und Bemühungen der Bürger, sich mit ihren Nachbarn zu harmonisieren.",
+                stat_harmonization_actions: "Protokollierte Harmonisierungsaktionen",
+                stat_successful_mediations: "Gemeldete erfolgreiche Mediationen (Nutzer-zu-Nutzer)",
+                stat_positive_feedback: "Positives Feedback zu Anpassungen",
+                prosocial_top_areas: "Top-Bereiche nach prosozialem Engagement",
+                area_neustadt: "Bezirk Neustadt: 150 Aktionen, Ø Harmonie-Wert: 85%", // Beispiel
+                area_altstadt: "Altstadtviertel: 120 Aktionen, Ø Harmonie-Wert: 82%", // Beispiel
+                area_riverside: "Ufergemeinschaft: 95 Aktionen, Ø Harmonie-Wert: 79%", // Beispiel
+                prosocial_note: "Das Engagement wird anhand von Nutzern gemessen, die aktiv Anpassungen oder positive Interaktionen über die Bürger-App protokollieren.",
+                modal_complaint_details_title: "Beschwerdedetails",
+                button_close: "Schließen", button_update_status: "Status aktualisieren",
+                legend_title: "Legende",
+                legend_pred_conflict: "Vorhergesagter Konflikt",
+                legend_actual_conflict_low: "Echter Konflikt (Niedrig)",
+                legend_actual_conflict_med: "Echter Konflikt (Mittel)",
+                legend_actual_conflict_high: "Echter Konflikt (Hoch)",
+                legend_prosocial: "Prosoziale Aktivität",
+                complaint_type_music: "Laute Musik", complaint_type_construction: "Bauarbeiten", complaint_type_pets: "Tierlärm", complaint_type_party: "Party", complaint_type_other: "Sonstige",
+                severity_1: "1 (Niedrig)", severity_2: "2", severity_3: "3 (Mittel)", severity_4: "4", severity_5: "5 (Hoch)",
+                action_view_details: "Details anzeigen"
+            }
+        };
+        // --- END TRANSLATIONS ---
+
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.getAttribute('data-translate-key');
+                const translation = translations[currentLang][key];
+                if (translation) {
+                    if (el.tagName === 'INPUT' && el.type === 'text' || el.tagName === 'TEXTAREA') {
+                        if (el.placeholder) el.placeholder = translation;
+                    } else if (el.tagName === 'INPUT' && el.type === 'button' || el.tagName === 'BUTTON') {
+                         el.textContent = translation; 
+                    } else if (el.tagName === 'OPTION') {
+                        el.textContent = translation;
+                    }
+                    else {
+                        el.innerHTML = translation; 
+                    }
+                }
+            });
+            
+            if (document.getElementById('mapView').classList.contains('active') && map) {
+                initMap(); 
+            }
+            populateComplaintTable(); 
+            renderSensitivityChart(); 
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('municipalNoiseLang', lang);
+            document.documentElement.lang = lang;
+            applyTranslations();
+            document.getElementById('langToggleEn').classList.toggle('ring-2', lang === 'en');
+            document.getElementById('langToggleEn').classList.toggle('ring-blue-500', lang === 'en'); 
+            document.getElementById('langToggleDe').classList.toggle('ring-2', lang === 'de');
+            document.getElementById('langToggleDe').classList.toggle('ring-blue-500', lang === 'de');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('municipalNoiseTheme', theme);
+            const bodyClassList = document.body.classList;
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+
+            if (theme === 'light') {
+                bodyClassList.remove('dark-mode'); 
+                bodyClassList.add('light-mode'); 
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else { 
+                bodyClassList.remove('light-mode');
+                bodyClassList.add('dark-mode');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+            if (map) {
+                if(document.getElementById('mapView').classList.contains('active')) {
+                    initMap();
+                }
+            }
+            renderSensitivityChart(); 
+        }
+        
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('app-container').classList.toggle('sidebar-collapsed');
+            if (map) { 
+                setTimeout(() => map.invalidateSize(), 300);
+            }
+        });
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+        });
+
+        document.getElementById('langToggleEn').addEventListener('click', () => setLanguage('en'));
+        document.getElementById('langToggleDe').addEventListener('click', () => setLanguage('de'));
+
+        function showSection(id, navLink) {
+            document.querySelectorAll('main > section').forEach(sec => {
+                sec.classList.add('hidden');
+                sec.classList.remove('active');
+            });
+            const activeSection = document.getElementById(id);
+            activeSection.classList.remove('hidden');
+            activeSection.classList.add('active');
+
+
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active-nav'));
+            if (navLink) {
+                navLink.classList.add('active-nav');
+            }
+
+            if (id === 'mapView' && (!map || !document.getElementById('map')._leaflet_id)) { 
+                initMap();
+            } else if (map && document.getElementById('map')._leaflet_id) { 
+                 map.invalidateSize(); 
+            }
+            if (id === 'complaintLog') {
+                populateComplaintTable();
+            }
+            if (id === 'communityInsights') {
+                renderSensitivityChart();
+            }
+        }
+
+        function initMap() {
+            if (map && document.getElementById('map')._leaflet_id) { 
+                map.remove(); 
+                map = null; 
+            }
+            
+            // Centered on Muldestausee Municipality with a broader zoom
+            const muldestauseeCenter = [51.600, 12.38]; // Approximate center of Muldestausee
+            map = L.map('map').setView(muldestauseeCenter, 12); // Zoom level 12 for wider view
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            addMapLayers();
+            addMapLegend();
+        }
+
+        function addMapLayers() {
+            // Synthetic Data spread across Muldestausee
+            const predictedConflictData = [
+                { latlng: [51.6045, 12.4025], radius: 250, intensity: 0.8, details: translations[currentLang].map_pred_conflict_detail_1 || "High variance in quiet time preferences (Pouch - Main St)." },
+                { latlng: [51.6180, 12.3530], radius: 200, intensity: 0.6, details: translations[currentLang].map_pred_conflict_detail_2 || "Mixed tolerance for pet noise (Friedersdorf - Park Area)." },
+                { latlng: [51.5830, 12.3660], radius: 180, intensity: 0.7, details: translations[currentLang].map_pred_conflict_detail_3 || "Discrepancy in acceptable weekend activity hours (Schlaitz - Residential)." }
+            ];
+            const actualConflictData = [
+                { latlng: [51.6052, 12.4005], severity: 5, type: "Loud Music", id: "C001", time: "2025-05-17 22:30", details: translations[currentLang].map_actual_conflict_detail_1 || "Loud Music Complaint (Pouch - Central)." },
+                { latlng: [51.5900, 12.4400], severity: 3, type: "Construction", id: "C002", time: "2025-05-18 08:15", details: translations[currentLang].map_actual_conflict_detail_2 || "Construction Noise Report (Gossa - Industrial Edge)." },
+                { latlng: [51.6280, 12.3380], severity: 2, type: "Pet Noise", id: "C003", time: "2025-05-18 14:00", details: translations[currentLang].map_actual_conflict_detail_3 || "Recurring Pet Noise Issue (Mühlbeck - Lakeside)." }
+            ];
+            const prosocialData = [
+                { latlng: [51.6175, 12.3550], users: 5, actions: translations[currentLang].map_prosocial_detail_1 || "Successful mediation via app (Friedersdorf)." },
+                { latlng: [51.6030, 12.4015], users: 8, actions: translations[currentLang].map_prosocial_detail_2 || "Community agreement on quiet hours (Pouch - South)." },
+                { latlng: [51.5700, 12.4600], users: 4, actions: translations[currentLang].map_prosocial_detail_3 || "Multiple users offered to adjust schedules (Krina)." }
+            ];
+
+            if (layers.predictedConflict && map.hasLayer(layers.predictedConflict)) map.removeLayer(layers.predictedConflict);
+            layers.predictedConflict = L.layerGroup(predictedConflictData.map(d => {
+                return L.circle(d.latlng, {
+                    color: 'orange',
+                    fillColor: '#f39c12',
+                    fillOpacity: 0.3 + (d.intensity * 0.4), 
+                    radius: d.radius
+                }).bindPopup(`<b>${translations[currentLang].legend_pred_conflict || 'Predicted Conflict'}</b><br>${d.details}<br>Intensity: ${d.intensity.toFixed(1)}`);
+            })).addTo(map);
+
+            if (layers.actualConflict && map.hasLayer(layers.actualConflict)) map.removeLayer(layers.actualConflict);
+            layers.actualConflict = L.layerGroup(actualConflictData.map(d => {
+                let color = 'green';
+                if (d.severity >= 4) color = '#e74c3c'; 
+                else if (d.severity >= 3) color = '#f39c12'; 
+                else color = '#2ecc71'; 
+
+                return L.circleMarker(d.latlng, {
+                    radius: 6 + d.severity, 
+                    fillColor: color,
+                    color: color,
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                }).bindPopup(`<b>${translations[currentLang].col_type || 'Noise Type'}:</b> ${translations[currentLang]['complaint_type_' + d.type.toLowerCase().replace(/ /g, '_')] || d.type}<br><b>${translations[currentLang].col_severity || 'Severity'}:</b> ${d.severity}<br><b>ID:</b> ${d.id}<br><b>Time:</b> ${d.time}<br><i>${d.details}</i>`);
+            })).addTo(map);
+
+            if (layers.prosocialActivity && map.hasLayer(layers.prosocialActivity)) map.removeLayer(layers.prosocialActivity);
+            layers.prosocialActivity = L.layerGroup(prosocialData.map(d => {
+                return L.marker(d.latlng, {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color:#2ecc71;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;border:2px solid white;'><i class='fas fa-hands-helping'></i></div>",
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    })
+                }).bindPopup(`<b>${translations[currentLang].legend_prosocial || 'Prosocial Activity'}</b><br>${d.actions}<br>Users Involved: ${d.users}`);
+            })).addTo(map);
+            
+            if (map.layerControl) {
+                map.removeControl(map.layerControl);
+            }
+
+            const overlayMaps = {};
+            overlayMaps[translations[currentLang].legend_pred_conflict || "Predicted Conflict"] = layers.predictedConflict;
+            overlayMaps[translations[currentLang].legend_actual_conflict_high?.split('(')[0].trim() || "Actual Conflict"] = layers.actualConflict; 
+            overlayMaps[translations[currentLang].legend_prosocial || "Prosocial Activity"] = layers.prosocialActivity;
+
+            map.layerControl = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+        }
+
+        function addMapLegend() {
+            if (map.legendControl) {
+                map.removeControl(map.legendControl);
+            }
+            map.legendControl = L.control({position: 'bottomright'});
+            map.legendControl.onAdd = function (map) {
+                const div = L.DomUtil.create('div', 'info legend');
+                div.innerHTML = `<h4 data-translate-key="legend_title">${translations[currentLang].legend_title || 'Legend'}</h4>` +
+                    `<div><i style="background: #f39c12; opacity: 0.5;"></i> <span data-translate-key="legend_pred_conflict">${translations[currentLang].legend_pred_conflict || 'Predicted Conflict'}</span></div>` +
+                    `<div><i style="background: #e74c3c;"></i> <span data-translate-key="legend_actual_conflict_high">${translations[currentLang].legend_actual_conflict_high || 'Actual Conflict (High Sev.)'}</span></div>` +
+                    `<div><i style="background: #f39c12;"></i> <span data-translate-key="legend_actual_conflict_med">${translations[currentLang].legend_actual_conflict_med || 'Actual Conflict (Med. Sev.)'}</span></div>` +
+                    `<div><i style="background: #2ecc71;"></i> <span data-translate-key="legend_actual_conflict_low">${translations[currentLang].legend_actual_conflict_low || 'Actual Conflict (Low Sev.)'}</span></div>` +
+                    `<div><i style="background: #2ecc71;"><span class="fas fa-hands-helping" style="color:white; font-size:10px; margin-left:3px; margin-top:3px;"></span></i> <span data-translate-key="legend_prosocial">${translations[currentLang].legend_prosocial || 'Prosocial Activity'}</span></div>`;
+                return div;
+            };
+            map.legendControl.addTo(map);
+        }
+
+        const syntheticComplaints = [
+            { id: "C0192", date: "2025-05-18", location: "Pouch, Hauptstr. 12", type: "Loud Music", severity: 4, status: "Open", description: "Loud techno music from apartment above, ongoing for 3 hours." },
+            { id: "C0191", date: "2025-05-17", location: "Friedersdorf, Seeblick 5", type: "Pet Noise", severity: 2, status: "Resolved", description: "Dog barking intermittently during the day. Spoke to neighbor, resolved." },
+            { id: "C0190", date: "2025-05-17", location: "Gossa, Gewerbering 1", type: "Construction", severity: 5, status: "In Progress", description: "Heavy machinery operating outside permitted hours (before 7 AM)." },
+            { id: "C0189", date: "2025-05-16", location: "Schlaitz, Dorfaue 33", type: "Party", severity: 3, status: "Open", description: "Loud party with many guests, music audible two streets away." },
+            { id: "C0188", date: "2025-05-15", location: "Mühlbeck, Uferweg", type: "Other", severity: 1, status: "Closed", description: "Street performer with overly amplified microphone. Advised on volume." },
+        ];
+
+        function populateComplaintTable() {
+            const tbody = document.getElementById('complaintTableBody');
+            tbody.innerHTML = ''; 
+            syntheticComplaints.forEach(c => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-2 whitespace-nowrap">${c.id}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${c.date}</td>
+                    <td class="px-4 py-2">${c.location}</td>
+                    <td class="px-4 py-2">${translations[currentLang]['complaint_type_' + c.type.toLowerCase().replace(/ /g, '_')] || c.type}</td>
+                    <td class="px-4 py-2"><span class="badge ${getSeverityBadge(c.severity)}">${translations[currentLang]['severity_' + c.severity] || c.severity}</span></td>
+                    <td class="px-4 py-2"><span class="badge ${getStatusBadge(c.status)}">${translations[currentLang]['status_' + c.status.toLowerCase().replace(/ /g, '_')] || c.status}</span></td>
+                    <td class="px-4 py-2">
+                        <button onclick="openComplaintModal('${c.id}')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs">
+                            <i class="fas fa-eye mr-1"></i> <span data-translate-key="action_view_details">${translations[currentLang].action_view_details || 'View Details'}</span>
+                        </button>
+                    </td>
+                `;
+            });
+            const tableInfo = document.getElementById('complaintTableInfo');
+            if (tableInfo) {
+                 tableInfo.textContent = (translations[currentLang].table_showing_entries || "Showing 1 to X of Y entries")
+                    .replace('1 to X', `1 to ${Math.min(5, syntheticComplaints.length)}`)
+                    .replace('Y', syntheticComplaints.length);
+            }
+        }
+
+        function getSeverityBadge(severity) {
+            if (severity >= 4) return 'badge-danger';
+            if (severity >= 3) return 'badge-warning';
+            return 'badge-success'; 
+        }
+        function getStatusBadge(status) {
+            if (status === "Open") return 'badge-danger';
+            if (status === "In Progress") return 'badge-warning';
+            if (status === "Resolved") return 'badge-success';
+            if (status === "Closed") return 'badge-neutral';
+            return 'badge-info';
+        }
+        
+        const sensitivityData = [
+            { labelKey: "chart_label_very_low", value: 10 },
+            { labelKey: "chart_label_low", value: 25 },
+            { labelKey: "chart_label_medium", value: 40 },
+            { labelKey: "chart_label_high", value: 20 },
+            { labelKey: "chart_label_very_high", value: 5 }
+        ];
+
+        function renderSensitivityChart() {
+            const chartContainer = document.getElementById('sensitivityChart');
+            if (!chartContainer) return;
+            
+            // Clear previous chart content but preserve Y-axis if it's already there
+            const yAxisExisting = chartContainer.querySelector('.bar-chart-y-axis');
+            chartContainer.innerHTML = ''; 
+            if (yAxisExisting) {
+                chartContainer.appendChild(yAxisExisting);
+            } else {
+                 const yAxis = document.createElement('div');
+                yAxis.className = 'bar-chart-y-axis';
+                ['0%', '25%', '50%', '75%', '100%'].forEach(val => {
+                    const span = document.createElement('span');
+                    span.textContent = val;
+                    yAxis.appendChild(span);
+                });
+                chartContainer.appendChild(yAxis);
+            }
+
+            const maxValue = 100; 
+
+            sensitivityData.forEach(item => {
+                const barDiv = document.createElement('div');
+                barDiv.className = 'bar';
+                const barHeight = (item.value / maxValue) * 100; 
+                barDiv.style.height = `${barHeight}%`;
+                
+                const percentageSpan = document.createElement('span');
+                percentageSpan.className = 'bar-percentage';
+                percentageSpan.textContent = `${item.value}%`;
+                barDiv.appendChild(percentageSpan);
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'bar-label';
+                labelSpan.setAttribute('data-translate-key', item.labelKey);
+                labelSpan.textContent = translations[currentLang][item.labelKey] || item.labelKey.replace('chart_label_', '').replace('_', ' ');
+                barDiv.appendChild(labelSpan);
+                
+                chartContainer.appendChild(barDiv);
+            });
+        }
+
+        function openComplaintModal(complaintId) {
+            const complaint = syntheticComplaints.find(c => c.id === complaintId);
+            if (!complaint) return;
+
+            document.getElementById('modal_complaint_id').textContent = complaint.id;
+            document.getElementById('modal_complaint_date').textContent = complaint.date;
+            document.getElementById('modal_complaint_location').textContent = complaint.location;
+            document.getElementById('modal_complaint_type').textContent = translations[currentLang]['complaint_type_' + complaint.type.toLowerCase().replace(/ /g, '_')] || complaint.type;
+            document.getElementById('modal_complaint_severity').innerHTML = `<span class="badge ${getSeverityBadge(complaint.severity)}">${translations[currentLang]['severity_' + complaint.severity] || complaint.severity}</span>`;
+            document.getElementById('modal_complaint_description').textContent = complaint.description;
+            document.getElementById('modal_complaint_status_val').innerHTML = `<span class="badge ${getStatusBadge(complaint.status)}">${translations[currentLang]['status_' + complaint.status.toLowerCase().replace(/ /g, '_')] || complaint.status}</span>`;
+
+            document.getElementById('complaintModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTheme(currentTheme);
+            setLanguage(currentLang);
+            showSection('dashboard', document.querySelector('.sidebar-link[onclick*="dashboard"]'));
+            if (document.getElementById('communityInsights').classList.contains('active')) {
+                renderSensitivityChart();
+            }
+        });
+
+    </script>
+</body>
+</html>
