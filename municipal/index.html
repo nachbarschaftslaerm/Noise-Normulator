@@ -462,14 +462,7 @@
                             <h3 class="text-lg font-semibold mb-3" data-translate-key="insights_sensitivity_dist">Noise Sensitivity Distribution</h3>
                             <div class="bar-chart-container">
                                 <div class="bar-chart" id="sensitivityChart">
-                                    <div class="bar-chart-y-axis">
-                                        <span>100%</span>
-                                        <span>75%</span>
-                                        <span>50%</span>
-                                        <span>25%</span>
-                                        <span>0%</span>
                                     </div>
-                                </div>
                             </div>
                         </div>
                         <div class="card p-5">
@@ -579,16 +572,18 @@
     </div>
 
     <script>
+        // Global state variables for language and theme
         let currentLang = localStorage.getItem('municipalNoiseLang') || 'en';
         let currentTheme = localStorage.getItem('municipalNoiseTheme') || 'light'; 
-        let map;
-        let layers = {
+        let map; // Leaflet map instance
+        let layers = { // Object to hold map layers for toggling
             predictedConflict: null,
             actualConflict: null,
             prosocialActivity: null
         };
 
         // --- TRANSLATIONS ---
+        // Object holding all translations for English (en) and German (de)
         const translations = {
             en: {
                 app_title: "Municipal Noise Normulator",
@@ -651,9 +646,9 @@
                 stat_successful_mediations: "Reported Successful Mediations (User-to-User)",
                 stat_positive_feedback: "Positive Feedback on Adjustments",
                 prosocial_top_areas: "Top Areas by Prosocial Engagement",
-                area_neustadt: "Neustadt District: 150 actions, Avg. Harmony Score: 85%", // Example, may not be a real district in Muldestausee
-                area_altstadt: "Altstadt Quarter: 120 actions, Avg. Harmony Score: 82%", // Example
-                area_riverside: "Riverside Community: 95 actions, Avg. Harmony Score: 79%", // Example
+                area_neustadt: "Neustadt District: 150 actions, Avg. Harmony Score: 85%", 
+                area_altstadt: "Altstadt Quarter: 120 actions, Avg. Harmony Score: 82%", 
+                area_riverside: "Riverside Community: 95 actions, Avg. Harmony Score: 79%", 
                 prosocial_note: "Engagement is measured by users actively logging adjustments or positive interactions via the citizen app.",
                 modal_complaint_details_title: "Complaint Details",
                 button_close: "Close", button_update_status: "Update Status",
@@ -668,7 +663,7 @@
                 action_view_details: "View Details"
 
             },
-            de: {
+            de: { // German translations
                 app_title: "Kommunaler Lärm-Normulator",
                 sidebar_title: "Kommunal-UI",
                 nav_dashboard: "Dashboard",
@@ -729,9 +724,9 @@
                 stat_successful_mediations: "Gemeldete erfolgreiche Mediationen (Nutzer-zu-Nutzer)",
                 stat_positive_feedback: "Positives Feedback zu Anpassungen",
                 prosocial_top_areas: "Top-Bereiche nach prosozialem Engagement",
-                area_neustadt: "Bezirk Neustadt: 150 Aktionen, Ø Harmonie-Wert: 85%", // Beispiel
-                area_altstadt: "Altstadtviertel: 120 Aktionen, Ø Harmonie-Wert: 82%", // Beispiel
-                area_riverside: "Ufergemeinschaft: 95 Aktionen, Ø Harmonie-Wert: 79%", // Beispiel
+                area_neustadt: "Bezirk Neustadt: 150 Aktionen, Ø Harmonie-Wert: 85%",
+                area_altstadt: "Altstadtviertel: 120 Aktionen, Ø Harmonie-Wert: 82%",
+                area_riverside: "Ufergemeinschaft: 95 Aktionen, Ø Harmonie-Wert: 79%",
                 prosocial_note: "Das Engagement wird anhand von Nutzern gemessen, die aktiv Anpassungen oder positive Interaktionen über die Bürger-App protokollieren.",
                 modal_complaint_details_title: "Beschwerdedetails",
                 button_close: "Schließen", button_update_status: "Status aktualisieren",
@@ -748,12 +743,16 @@
         };
         // --- END TRANSLATIONS ---
 
-
+        /**
+         * Applies the current language translations to all elements with a 'data-translate-key' attribute.
+         * Refreshes map, complaint table, and charts if they are active.
+         */
         function applyTranslations() {
             document.querySelectorAll('[data-translate-key]').forEach(el => {
                 const key = el.getAttribute('data-translate-key');
                 const translation = translations[currentLang][key];
                 if (translation) {
+                    // Handle different element types appropriately
                     if (el.tagName === 'INPUT' && el.type === 'text' || el.tagName === 'TEXTAREA') {
                         if (el.placeholder) el.placeholder = translation;
                     } else if (el.tagName === 'INPUT' && el.type === 'button' || el.tagName === 'BUTTON') {
@@ -767,24 +766,34 @@
                 }
             });
             
+            // Re-initialize map if it's visible to apply language changes to popups/controls
             if (document.getElementById('mapView').classList.contains('active') && map) {
                 initMap(); 
             }
-            populateComplaintTable(); 
-            renderSensitivityChart(); 
+            populateComplaintTable(); // Repopulate complaint table for translated content
+            renderSensitivityChart(); // Re-render chart for translated labels
         }
 
+        /**
+         * Sets the application language, stores it in localStorage, and applies translations.
+         * @param {string} lang - The language code ('en' or 'de').
+         */
         function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('municipalNoiseLang', lang);
-            document.documentElement.lang = lang;
+            document.documentElement.lang = lang; // Set lang attribute on HTML element
             applyTranslations();
+            // Visually indicate active language toggle
             document.getElementById('langToggleEn').classList.toggle('ring-2', lang === 'en');
             document.getElementById('langToggleEn').classList.toggle('ring-blue-500', lang === 'en'); 
             document.getElementById('langToggleDe').classList.toggle('ring-2', lang === 'de');
             document.getElementById('langToggleDe').classList.toggle('ring-blue-500', lang === 'de');
         }
 
+        /**
+         * Sets the application theme (light/dark), stores it in localStorage, and updates UI.
+         * @param {string} theme - The theme name ('light' or 'dark').
+         */
         function setTheme(theme) {
             currentTheme = theme;
             localStorage.setItem('municipalNoiseTheme', theme);
@@ -792,6 +801,7 @@
             const sunIcon = document.getElementById('themeIconSun');
             const moonIcon = document.getElementById('themeIconMoon');
 
+            // Apply theme classes and toggle theme icon
             if (theme === 'light') {
                 bodyClassList.remove('dark-mode'); 
                 bodyClassList.add('light-mode'); 
@@ -803,77 +813,104 @@
                 sunIcon.classList.add('hidden');
                 moonIcon.classList.remove('hidden');
             }
+            // Re-initialize map if it's visible to apply theme changes
             if (map) {
                 if(document.getElementById('mapView').classList.contains('active')) {
-                    initMap();
+                    initMap(); // Re-init map to potentially update tile styling or popups
                 }
             }
-            renderSensitivityChart(); 
+            renderSensitivityChart(); // Re-render chart for theme-dependent colors
         }
         
+        // Event listener for sidebar toggle button
         document.getElementById('sidebarToggle').addEventListener('click', () => {
             document.getElementById('app-container').classList.toggle('sidebar-collapsed');
             if (map) { 
+                // Adjust map size after sidebar animation
                 setTimeout(() => map.invalidateSize(), 300);
             }
         });
 
+        // Event listener for theme toggle button
         document.getElementById('themeToggle').addEventListener('click', () => {
             setTheme(currentTheme === 'light' ? 'dark' : 'light');
         });
 
+        // Event listeners for language toggle buttons
         document.getElementById('langToggleEn').addEventListener('click', () => setLanguage('en'));
         document.getElementById('langToggleDe').addEventListener('click', () => setLanguage('de'));
 
+        /**
+         * Shows the specified section and hides others. Updates active navigation link.
+         * Initializes map or other section-specific content if needed.
+         * @param {string} id - The ID of the section to show.
+         * @param {HTMLElement} navLink - The clicked navigation link element.
+         */
         function showSection(id, navLink) {
+            // Hide all main sections
             document.querySelectorAll('main > section').forEach(sec => {
                 sec.classList.add('hidden');
                 sec.classList.remove('active');
             });
+            // Show the target section
             const activeSection = document.getElementById(id);
             activeSection.classList.remove('hidden');
             activeSection.classList.add('active');
 
-
+            // Update active state for sidebar links
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active-nav'));
             if (navLink) {
                 navLink.classList.add('active-nav');
             }
 
+            // Initialize map if mapView is shown and map isn't already initialized
             if (id === 'mapView' && (!map || !document.getElementById('map')._leaflet_id)) { 
                 initMap();
             } else if (map && document.getElementById('map')._leaflet_id) { 
-                 map.invalidateSize(); 
+                 map.invalidateSize(); // Ensure map resizes correctly if already initialized
             }
+            // Populate complaint table if complaintLog is shown
             if (id === 'complaintLog') {
                 populateComplaintTable();
             }
+            // Render sensitivity chart if communityInsights is shown
             if (id === 'communityInsights') {
                 renderSensitivityChart();
             }
         }
 
+        /**
+         * Initializes or re-initializes the Leaflet map.
+         * Sets view to Muldestausee, adds tile layer, map layers, and legend.
+         */
         function initMap() {
+            // Remove existing map instance if it exists to prevent errors
             if (map && document.getElementById('map')._leaflet_id) { 
                 map.remove(); 
                 map = null; 
             }
             
-            // Centered on Muldestausee Municipality with a broader zoom
-            const muldestauseeCenter = [51.600, 12.38]; // Approximate center of Muldestausee
-            map = L.map('map').setView(muldestauseeCenter, 12); // Zoom level 12 for wider view
+            // Define center coordinates for Muldestausee and initial zoom level
+            const muldestauseeCenter = [51.600, 12.38]; 
+            map = L.map('map').setView(muldestauseeCenter, 12); 
 
+            // Add OpenStreetMap tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
 
+            // Add custom data layers and legend to the map
             addMapLayers();
             addMapLegend();
         }
 
+        /**
+         * Adds data layers (predicted conflict, actual conflict, prosocial activity) to the map.
+         * Uses synthetic data and creates Leaflet circle markers and custom icons.
+         */
         function addMapLayers() {
-            // Synthetic Data spread across Muldestausee
+            // Synthetic data for map points, spread across Muldestausee area
             const predictedConflictData = [
                 { latlng: [51.6045, 12.4025], radius: 250, intensity: 0.8, details: translations[currentLang].map_pred_conflict_detail_1 || "High variance in quiet time preferences (Pouch - Main St)." },
                 { latlng: [51.6180, 12.3530], radius: 200, intensity: 0.6, details: translations[currentLang].map_pred_conflict_detail_2 || "Mixed tolerance for pet noise (Friedersdorf - Park Area)." },
@@ -890,9 +927,10 @@
                 { latlng: [51.5700, 12.4600], users: 4, actions: translations[currentLang].map_prosocial_detail_3 || "Multiple users offered to adjust schedules (Krina)." }
             ];
 
+            // Remove old layers if they exist before adding new ones
             if (layers.predictedConflict && map.hasLayer(layers.predictedConflict)) map.removeLayer(layers.predictedConflict);
             layers.predictedConflict = L.layerGroup(predictedConflictData.map(d => {
-                return L.circle(d.latlng, {
+                return L.circle(d.latlng, { // Circles for predicted conflict
                     color: 'orange',
                     fillColor: '#f39c12',
                     fillOpacity: 0.3 + (d.intensity * 0.4), 
@@ -902,24 +940,24 @@
 
             if (layers.actualConflict && map.hasLayer(layers.actualConflict)) map.removeLayer(layers.actualConflict);
             layers.actualConflict = L.layerGroup(actualConflictData.map(d => {
-                let color = 'green';
+                let color = 'green'; // Color based on severity
                 if (d.severity >= 4) color = '#e74c3c'; 
                 else if (d.severity >= 3) color = '#f39c12'; 
                 else color = '#2ecc71'; 
 
-                return L.circleMarker(d.latlng, {
+                return L.circleMarker(d.latlng, { // Circle markers for actual conflicts
                     radius: 6 + d.severity, 
                     fillColor: color,
                     color: color,
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 0.7
-                }).bindPopup(`<b>${translations[currentLang].col_type || 'Noise Type'}:</b> ${translations[currentLang]['complaint_type_' + d.type.toLowerCase().replace(/ /g, '_')] || d.type}<br><b>${translations[currentLang].col_severity || 'Severity'}:</b> ${d.severity}<br><b>ID:</b> ${d.id}<br><b>Time:</b> ${d.time}<br><i>${d.details}</i>`);
+                }).bindPopup(`<b>${translations[currentLang].col_type || 'Noise Type'}:</b> ${translations[currentLang]['complaint_type_' + d.type.toLowerCase().replace(/ /g, '_')] || d.type}<br><b>${translations[currentLang].col_severity || 'Severity'}:</b> ${d.severity}<br>ID:</b> ${d.id}<br><b>Time:</b> ${d.time}<br><i>${d.details}</i>`);
             })).addTo(map);
 
             if (layers.prosocialActivity && map.hasLayer(layers.prosocialActivity)) map.removeLayer(layers.prosocialActivity);
             layers.prosocialActivity = L.layerGroup(prosocialData.map(d => {
-                return L.marker(d.latlng, {
+                return L.marker(d.latlng, { // Custom divIcon markers for prosocial activity
                     icon: L.divIcon({
                         className: 'custom-div-icon',
                         html: "<div style='background-color:#2ecc71;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;border:2px solid white;'><i class='fas fa-hands-helping'></i></div>",
@@ -929,11 +967,12 @@
                 }).bindPopup(`<b>${translations[currentLang].legend_prosocial || 'Prosocial Activity'}</b><br>${d.actions}<br>Users Involved: ${d.users}`);
             })).addTo(map);
             
+            // Remove and re-add layer control to update with new layer names (if language changed)
             if (map.layerControl) {
                 map.removeControl(map.layerControl);
             }
 
-            const overlayMaps = {};
+            const overlayMaps = {}; // Define layers for the layer control
             overlayMaps[translations[currentLang].legend_pred_conflict || "Predicted Conflict"] = layers.predictedConflict;
             overlayMaps[translations[currentLang].legend_actual_conflict_high?.split('(')[0].trim() || "Actual Conflict"] = layers.actualConflict; 
             overlayMaps[translations[currentLang].legend_prosocial || "Prosocial Activity"] = layers.prosocialActivity;
@@ -941,13 +980,19 @@
             map.layerControl = L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
         }
 
+        /**
+         * Adds a legend to the map.
+         * The legend explains the symbols used for different map layers.
+         */
         function addMapLegend() {
+            // Remove old legend if it exists
             if (map.legendControl) {
                 map.removeControl(map.legendControl);
             }
-            map.legendControl = L.control({position: 'bottomright'});
+            map.legendControl = L.control({position: 'bottomright'}); // Position legend at bottom right
             map.legendControl.onAdd = function (map) {
-                const div = L.DomUtil.create('div', 'info legend');
+                const div = L.DomUtil.create('div', 'info legend'); // Create div with class 'info legend'
+                // Populate legend with HTML content and translated text
                 div.innerHTML = `<h4 data-translate-key="legend_title">${translations[currentLang].legend_title || 'Legend'}</h4>` +
                     `<div><i style="background: #f39c12; opacity: 0.5;"></i> <span data-translate-key="legend_pred_conflict">${translations[currentLang].legend_pred_conflict || 'Predicted Conflict'}</span></div>` +
                     `<div><i style="background: #e74c3c;"></i> <span data-translate-key="legend_actual_conflict_high">${translations[currentLang].legend_actual_conflict_high || 'Actual Conflict (High Sev.)'}</span></div>` +
@@ -959,19 +1004,25 @@
             map.legendControl.addTo(map);
         }
 
+        // --- Synthetic Complaint Data with Fictional Addresses ---
         const syntheticComplaints = [
-            { id: "C0192", date: "2025-05-18", location: "Pouch, Hauptstr. 12", type: "Loud Music", severity: 4, status: "Open", description: "Loud techno music from apartment above, ongoing for 3 hours." },
-            { id: "C0191", date: "2025-05-17", location: "Friedersdorf, Seeblick 5", type: "Pet Noise", severity: 2, status: "Resolved", description: "Dog barking intermittently during the day. Spoke to neighbor, resolved." },
-            { id: "C0190", date: "2025-05-17", location: "Gossa, Gewerbering 1", type: "Construction", severity: 5, status: "In Progress", description: "Heavy machinery operating outside permitted hours (before 7 AM)." },
-            { id: "C0189", date: "2025-05-16", location: "Schlaitz, Dorfaue 33", type: "Party", severity: 3, status: "Open", description: "Loud party with many guests, music audible two streets away." },
-            { id: "C0188", date: "2025-05-15", location: "Mühlbeck, Uferweg", type: "Other", severity: 1, status: "Closed", description: "Street performer with overly amplified microphone. Advised on volume." },
+            { id: "C0192", date: "2025-05-18", location: "Pouch, Klangweg 7B", type: "Loud Music", severity: 4, status: "Open", description: "Loud techno music from apartment above, ongoing for 3 hours." },
+            { id: "C0191", date: "2025-05-17", location: "Friedersdorf, Harmoniestr. 14A", type: "Pet Noise", severity: 2, status: "Resolved", description: "Dog barking intermittently during the day. Spoke to neighbor, resolved." },
+            { id: "C0190", date: "2025-05-17", location: "Gossa, Maschinenpfad 21X", type: "Construction", severity: 5, status: "In Progress", description: "Heavy machinery operating outside permitted hours (before 7 AM)." },
+            { id: "C0189", date: "2025-05-16", location: "Schlaitz, Ruhegasse 8C", type: "Party", severity: 3, status: "Open", description: "Loud party with many guests, music audible two streets away." },
+            { id: "C0188", date: "2025-05-15", location: "Mühlbeck, Wellenpfad 55", type: "Other", severity: 1, status: "Closed", description: "Street performer with overly amplified microphone. Advised on volume." },
         ];
 
+        /**
+         * Populates the complaint log table with data from syntheticComplaints.
+         * Applies translations and badge styling.
+         */
         function populateComplaintTable() {
             const tbody = document.getElementById('complaintTableBody');
-            tbody.innerHTML = ''; 
+            tbody.innerHTML = ''; // Clear existing rows
             syntheticComplaints.forEach(c => {
                 const row = tbody.insertRow();
+                // Populate row cells with complaint data and translated/styled elements
                 row.innerHTML = `
                     <td class="px-4 py-2 whitespace-nowrap">${c.id}</td>
                     <td class="px-4 py-2 whitespace-nowrap">${c.date}</td>
@@ -986,6 +1037,7 @@
                     </td>
                 `;
             });
+            // Update table information (e.g., "Showing 1 to 5 of 5 entries")
             const tableInfo = document.getElementById('complaintTableInfo');
             if (tableInfo) {
                  tableInfo.textContent = (translations[currentLang].table_showing_entries || "Showing 1 to X of Y entries")
@@ -994,11 +1046,21 @@
             }
         }
 
+        /**
+         * Returns the appropriate badge class based on complaint severity.
+         * @param {number} severity - The severity level (1-5).
+         * @returns {string} CSS class for the badge.
+         */
         function getSeverityBadge(severity) {
             if (severity >= 4) return 'badge-danger';
             if (severity >= 3) return 'badge-warning';
             return 'badge-success'; 
         }
+        /**
+         * Returns the appropriate badge class based on complaint status.
+         * @param {string} status - The complaint status string.
+         * @returns {string} CSS class for the badge.
+         */
         function getStatusBadge(status) {
             if (status === "Open") return 'badge-danger';
             if (status === "In Progress") return 'badge-warning';
@@ -1007,6 +1069,7 @@
             return 'badge-info';
         }
         
+        // Synthetic data for the noise sensitivity distribution chart
         const sensitivityData = [
             { labelKey: "chart_label_very_low", value: 10 },
             { labelKey: "chart_label_low", value: 25 },
@@ -1015,16 +1078,20 @@
             { labelKey: "chart_label_very_high", value: 5 }
         ];
 
+        /**
+         * Renders the noise sensitivity bar chart.
+         * Uses data from sensitivityData and applies translations.
+         */
         function renderSensitivityChart() {
             const chartContainer = document.getElementById('sensitivityChart');
-            if (!chartContainer) return;
+            if (!chartContainer) return; // Exit if chart container not found
             
             // Clear previous chart content but preserve Y-axis if it's already there
             const yAxisExisting = chartContainer.querySelector('.bar-chart-y-axis');
             chartContainer.innerHTML = ''; 
             if (yAxisExisting) {
-                chartContainer.appendChild(yAxisExisting);
-            } else {
+                chartContainer.appendChild(yAxisExisting); // Re-append existing Y-axis
+            } else { // Create Y-axis if it doesn't exist
                  const yAxis = document.createElement('div');
                 yAxis.className = 'bar-chart-y-axis';
                 ['0%', '25%', '50%', '75%', '100%'].forEach(val => {
@@ -1035,19 +1102,22 @@
                 chartContainer.appendChild(yAxis);
             }
 
-            const maxValue = 100; 
+            const maxValue = 100; // Max value for percentage calculation
 
+            // Create and append bars for each data item
             sensitivityData.forEach(item => {
                 const barDiv = document.createElement('div');
                 barDiv.className = 'bar';
                 const barHeight = (item.value / maxValue) * 100; 
-                barDiv.style.height = `${barHeight}%`;
+                barDiv.style.height = `${barHeight}%`; // Set bar height based on value
                 
+                // Add percentage text above the bar
                 const percentageSpan = document.createElement('span');
                 percentageSpan.className = 'bar-percentage';
                 percentageSpan.textContent = `${item.value}%`;
                 barDiv.appendChild(percentageSpan);
 
+                // Add label below the bar (translated)
                 const labelSpan = document.createElement('span');
                 labelSpan.className = 'bar-label';
                 labelSpan.setAttribute('data-translate-key', item.labelKey);
@@ -1058,10 +1128,15 @@
             });
         }
 
+        /**
+         * Opens the complaint details modal and populates it with data for the selected complaint.
+         * @param {string} complaintId - The ID of the complaint to display.
+         */
         function openComplaintModal(complaintId) {
             const complaint = syntheticComplaints.find(c => c.id === complaintId);
-            if (!complaint) return;
+            if (!complaint) return; // Exit if complaint not found
 
+            // Populate modal fields with complaint details
             document.getElementById('modal_complaint_id').textContent = complaint.id;
             document.getElementById('modal_complaint_date').textContent = complaint.date;
             document.getElementById('modal_complaint_location').textContent = complaint.location;
@@ -1070,17 +1145,26 @@
             document.getElementById('modal_complaint_description').textContent = complaint.description;
             document.getElementById('modal_complaint_status_val').innerHTML = `<span class="badge ${getStatusBadge(complaint.status)}">${translations[currentLang]['status_' + complaint.status.toLowerCase().replace(/ /g, '_')] || complaint.status}</span>`;
 
+            // Show the modal
             document.getElementById('complaintModal').classList.remove('hidden');
         }
 
+        /**
+         * Closes the specified modal.
+         * @param {string} modalId - The ID of the modal to close.
+         */
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
 
+        // --- DOMContentLoaded Event Listener ---
+        // Initial setup when the page is fully loaded.
         document.addEventListener('DOMContentLoaded', () => {
-            setTheme(currentTheme);
-            setLanguage(currentLang);
-            showSection('dashboard', document.querySelector('.sidebar-link[onclick*="dashboard"]'));
+            setTheme(currentTheme); // Apply stored or default theme
+            setLanguage(currentLang); // Apply stored or default language
+            showSection('dashboard', document.querySelector('.sidebar-link[onclick*="dashboard"]')); // Show initial section
+            
+            // Render chart if its section is active on load (e.g. if user reloads on that page)
             if (document.getElementById('communityInsights').classList.contains('active')) {
                 renderSensitivityChart();
             }
